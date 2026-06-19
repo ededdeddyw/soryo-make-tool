@@ -1,0 +1,798 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>処分ナビ｜売る・譲る・捨てるを質問で判定（メルカリ送料負け＋自治体ごみルール）</title>
+<meta name="description" content="フリマ出品前に送料負けを判定し、売る・譲る・捨てるを質問で案内。メルカリ送料計算＋東京23区・政令市20市のごみルール。ローカル動作・データ送信なし。">
+<meta name="theme-color" content="#2e6b3e">
+<meta property="og:type" content="website">
+<meta property="og:title" content="処分ナビ｜売る・譲る・捨てるを質問で判定">
+<meta property="og:description" content="メルカリ送料負け計算＋自治体ごみルール。質問に答えるだけで、今のあなたに合った手放し方を提案します。">
+<link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2024%2024'%20fill='none'%20stroke='%232e6b3e'%20stroke-width='2'%20stroke-linecap='round'%20stroke-linejoin='round'%3E%3Cpath%20d='M21%2016V8a2%202%200%200%200-1-1.73l-7-4a2%202%200%200%200-2%200l-7%204A2%202%200%200%200%203%208v8a2%202%200%200%200%201%201.73l7%204a2%202%200%200%200%202%200l7-4A2%202%200%200%200%2021%2016z'/%3E%3Cpath%20d='M3.27%206.96%2012%2012.01l8.73-5.05M12%2022.08V12'/%3E%3C/svg%3E">
+<style>
+  :root{
+    --bg:#f4f7f5; --card:#ffffff; --ink:#1f2a24; --muted:#6b7a72;
+    --line:#e2e9e4; --accent:#2e6b3e; --accent-soft:#e7f1ea;
+    --ok:#2e8b57; --ok-bg:#e6f4ec; --warn:#b7791f; --warn-bg:#fbf2df;
+    --bad:#c0392b; --bad-bg:#fbe9e7; --blue:#2b6cb0; --blue-bg:#e8f1fa;
+    --radius:14px; --shadow:0 2px 10px rgba(31,42,36,.06);
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:"Hiragino Sans","Yu Gothic UI","Segoe UI",system-ui,sans-serif;
+    background:var(--bg);color:var(--ink);line-height:1.6;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:980px;margin:0 auto;padding:18px 16px 72px}
+  header.hero{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin:6px 0 14px}
+  .logo{width:46px;height:46px;border-radius:12px;background:var(--accent);display:grid;place-items:center;flex:0 0 auto;box-shadow:var(--shadow)}
+  .logo svg{width:26px;height:26px}
+  h1{font-size:1.3rem;margin:0}
+  .sub{font-size:.82rem;color:var(--muted);margin:2px 0 0}
+
+  nav.tabs{position:sticky;top:0;z-index:5;display:flex;gap:6px;background:var(--bg);padding:8px 0 10px;margin-bottom:6px;flex-wrap:wrap}
+  nav.tabs a{font-size:.84rem;font-weight:700;text-decoration:none;color:var(--accent);background:#fff;
+    border:1px solid var(--line);border-radius:999px;padding:7px 14px;box-shadow:var(--shadow)}
+  nav.tabs a:hover{background:var(--accent-soft)}
+
+  .card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:18px;box-shadow:var(--shadow);margin-bottom:16px}
+  .card h2{font-size:1rem;margin:0 0 4px}
+  .card .lead{font-size:.82rem;color:var(--muted);margin:0 0 14px}
+
+  /* wizard */
+  .wz-progress{display:flex;gap:6px;margin:0 0 16px}
+  .wz-progress i{height:6px;flex:1;border-radius:999px;background:var(--line);transition:.2s}
+  .wz-progress i.on{background:var(--accent)}
+  .wz-q{font-size:1.12rem;font-weight:800;margin:0 0 4px;display:flex;align-items:center;gap:8px}
+  .wz-step{font-size:.74rem;color:var(--muted);margin:0 0 14px}
+  .wz-opts{display:grid;gap:10px}
+  .wz-opt{display:flex;align-items:center;gap:12px;width:100%;text-align:left;cursor:pointer;
+    border:1.5px solid var(--line);background:#fff;border-radius:12px;padding:15px 16px;min-height:58px;font:inherit;color:var(--ink);transition:.15s}
+  .wz-opt:hover{border-color:var(--accent);background:var(--accent-soft);transform:translateY(-1px)}
+  .wz-opt .em{font-size:1.4rem;flex:0 0 auto;width:30px;text-align:center}
+  .wz-opt .ot{font-weight:700;font-size:.96rem}
+  .wz-opt .oh{font-size:.74rem;color:var(--muted)}
+  .wz-bar{display:flex;justify-content:space-between;align-items:center;margin-top:16px}
+  .btn{font:inherit;font-weight:700;cursor:pointer;border-radius:10px;padding:9px 16px;border:1px solid var(--line);background:#fff;color:var(--ink)}
+  .btn.ghost{color:var(--muted)}
+  .btn.primary{background:var(--accent);color:#fff;border-color:var(--accent)}
+  .btn:hover{filter:brightness(.98)}
+  .chips{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 14px}
+  .chip{font-size:.74rem;background:var(--accent-soft);color:var(--accent);border-radius:999px;padding:3px 10px;font-weight:700}
+
+  /* recommendation */
+  .rec-primary{display:flex;gap:14px;border-radius:14px;padding:18px;background:var(--ok-bg);border:1px solid #bfe3cd;margin-bottom:14px}
+  .rec-primary .em{font-size:2.2rem;flex:0 0 auto}
+  .rec-primary .rt{font-size:1.2rem;font-weight:800;margin:0;color:var(--ok)}
+  .rec-primary .rb{font-size:.86rem;margin:3px 0 0}
+  .rec-why{margin:8px 0 0;padding:0;list-style:none}
+  .rec-why li{font-size:.84rem;padding:3px 0 3px 20px;position:relative}
+  .rec-why li::before{content:"✓";position:absolute;left:0;color:var(--ok);font-weight:800}
+  .rec-cta{margin-top:12px}
+  .rec-others{margin-top:6px}
+  .rec-others .ro{display:flex;gap:11px;align-items:flex-start;padding:11px 12px;border:1px solid var(--line);border-radius:11px;margin-top:9px}
+  .rec-others .em{font-size:1.5rem;flex:0 0 auto;width:30px;text-align:center}
+  .rec-others .rn{font-weight:700;font-size:.92rem}
+  .rec-others .rd{font-size:.78rem;color:var(--muted)}
+  .rec-others .rk{font-size:.74rem;color:var(--accent);font-weight:700;margin-top:2px}
+  .rec-others a{color:var(--accent)}
+
+  .callout{margin-top:12px;background:var(--blue-bg);border:1px solid #bcd6ef;border-radius:11px;padding:12px 14px;font-size:.84rem}
+  .callout b{color:var(--blue)}
+
+  /* gov module */
+  label{display:block;font-size:.82rem;color:var(--muted);margin:12px 0 4px;font-weight:600}
+  label:first-of-type{margin-top:0}
+  select,input[type=text],input[type=number]{width:100%;padding:11px 12px;font-size:1rem;border:1px solid var(--line);border-radius:10px;background:#fff;color:var(--ink)}
+  select:focus,input:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+  .row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  @media(max-width:560px){.row2{grid-template-columns:1fr}}
+  .ward-pick{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+  .ward-pick button{font-size:.78rem;border:1px solid var(--line);background:#fff;border-radius:8px;padding:5px 9px;cursor:pointer}
+  .ward-pick button:hover{background:var(--accent-soft);border-color:var(--accent)}
+  .gov-card{margin-top:14px;border:1px solid var(--line);border-radius:12px;padding:0;overflow:hidden}
+  .gov-card .gh{background:var(--accent-soft);padding:10px 14px;font-weight:800;font-size:.95rem;color:var(--accent)}
+  .gov-card .gb{padding:4px 14px 12px}
+  .gov-row{display:flex;gap:10px;padding:10px 0;border-bottom:1px solid var(--line);font-size:.86rem}
+  .gov-row:last-child{border-bottom:none}
+  .gov-row .gk{flex:0 0 92px;color:var(--muted);font-weight:700;font-size:.8rem}
+  .gov-row .gv{flex:1}
+  .verified{font-size:.68rem;background:var(--ok-bg);color:var(--ok);border-radius:5px;padding:1px 6px;font-weight:700;margin-left:6px}
+  .estim{font-size:.68rem;background:var(--warn-bg);color:var(--warn);border-radius:5px;padding:1px 6px;font-weight:700;margin-left:6px}
+
+  /* calculator */
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  @media(max-width:760px){.grid{grid-template-columns:1fr}}
+  .row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+  .unit{position:relative}
+  .unit .u{position:absolute;right:11px;top:50%;transform:translateY(-50%);font-size:.78rem;color:var(--muted)}
+  details.adv{margin-top:14px;border-top:1px dashed var(--line);padding-top:10px}
+  details.adv summary{cursor:pointer;font-size:.82rem;color:var(--accent);font-weight:600;list-style:none}
+  details.adv summary::-webkit-details-marker{display:none}
+  details.adv summary::before{content:"＋ "}details.adv[open] summary::before{content:"－ "}
+  .hint{font-weight:400;font-size:.74rem;color:var(--muted)}
+  .presets{display:flex;flex-wrap:wrap;gap:7px;margin:2px 0 4px}
+  .preset{font:inherit;font-size:.82rem;font-weight:700;cursor:pointer;border:1px solid var(--line);background:#fff;border-radius:12px;padding:8px 12px;color:var(--ink);transition:.15s;line-height:1.15;text-align:left}
+  .preset:hover{border-color:var(--accent);background:var(--accent-soft);transform:translateY(-1px)}
+  .preset .pm{font-size:.68rem;color:var(--muted);display:block;margin-top:3px;font-weight:400}
+  .ship-pick{display:flex;align-items:center;gap:11px;background:var(--accent-soft);border:1px solid #bfe3cd;border-radius:12px;padding:11px 14px;margin-bottom:12px}
+  .ship-pick .pe{font-size:1.5rem;flex:0 0 auto}
+  .ship-pick .pl{font-size:.7rem;color:var(--muted);font-weight:700}
+  .ship-pick .pn{font-size:1.02rem;font-weight:800;line-height:1.2}
+  .ship-pick .pc{margin-left:auto;text-align:right;flex:0 0 auto}
+  .ship-pick .pc b{font-size:1.05rem}
+  .verdict{border-radius:var(--radius);padding:16px;display:flex;gap:13px;align-items:flex-start;margin-bottom:14px;border:1px solid transparent}
+  .verdict .ico{width:38px;height:38px;border-radius:10px;display:grid;place-items:center;flex:0 0 auto;background:#fff}
+  .verdict .ico svg{width:23px;height:23px}
+  .verdict .vt{font-size:1.12rem;font-weight:800;margin:0}.verdict .vd{font-size:.83rem;margin:3px 0 0}
+  .v-ok{background:var(--ok-bg);border-color:#bfe3cd}.v-ok .vt,.v-ok .ico svg{color:var(--ok)}
+  .v-warn{background:var(--warn-bg);border-color:#ecd9a8}.v-warn .vt,.v-warn .ico svg{color:var(--warn)}
+  .v-bad{background:var(--bad-bg);border-color:#f0c4bd}.v-bad .vt,.v-bad .ico svg{color:var(--bad)}
+  .net-big{font-size:2rem;font-weight:800;line-height:1.1;margin:2px 0}
+  .net-big.neg{color:var(--bad)}.net-big.pos{color:var(--ok)}
+  .net-cap{font-size:.77rem;color:var(--muted)}
+  table.bd{width:100%;border-collapse:collapse;font-size:.85rem;margin-top:4px}
+  table.bd td{padding:7px 2px;border-bottom:1px solid var(--line)}
+  table.bd td:last-child{text-align:right;font-variant-numeric:tabular-nums}
+  table.bd tr.total td{border-bottom:none;font-weight:800;padding-top:10px}
+  table.bd tr.minus td:last-child{color:var(--bad)}
+  .actions .a{display:flex;gap:9px;align-items:flex-start;font-size:.84rem;padding:8px 0;border-bottom:1px solid var(--line)}
+  .actions .a:last-child{border-bottom:none}
+  .actions .a .n{flex:0 0 auto;width:20px;height:20px;border-radius:6px;background:var(--accent);color:#fff;font-size:.72rem;font-weight:700;display:grid;place-items:center;margin-top:2px}
+  table.cmp-t{width:100%;border-collapse:collapse;font-size:.82rem;margin-top:6px}
+  table.cmp-t th,table.cmp-t td{padding:9px 8px;text-align:left;border-bottom:1px solid var(--line)}
+  table.cmp-t th{font-size:.73rem;color:var(--muted);background:#fafbfa}
+  table.cmp-t td.num{text-align:right;font-variant-numeric:tabular-nums}
+  table.cmp-t tr.best{background:var(--ok-bg)}
+  table.cmp-t tr.ng td{color:#aab4ae}
+  .tag{font-size:.68rem;padding:1px 6px;border-radius:5px;background:var(--accent-soft);color:var(--accent);font-weight:700;white-space:nowrap}
+  .tag.ng{background:#f0f2f0;color:#9aa49d}
+  .net-cell.neg{color:var(--bad);font-weight:700}.net-cell.pos{color:var(--ok);font-weight:700}
+  .disc{font-size:.74rem;color:var(--muted);background:#fff;border:1px dashed var(--line);border-radius:10px;padding:11px 13px;margin-top:6px}
+  .disc b{color:var(--ink)}
+  footer{margin-top:20px;font-size:.73rem;color:var(--muted);text-align:center}
+  a{color:var(--accent)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="hero">
+    <div class="logo" aria-hidden="true">
+      <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
+        <path d="M3.27 6.96 12 12.01l8.73-5.05M12 22.08V12"/>
+      </svg>
+    </div>
+    <div>
+      <h1>処分ナビ</h1>
+      <p class="sub">「売る・譲る・捨てる」を質問で判定 ＋ メルカリ送料負け計算 ＋ 自治体ごみルール</p>
+    </div>
+  </header>
+
+  <nav class="tabs">
+    <a href="#nav-navi">① 処分ナビ</a>
+    <a href="#nav-gov">② 自治体のごみルール</a>
+    <a href="#nav-calc">③ メルカリ送料計算</a>
+    <a href="soryo-tool.html" style="margin-left:auto">📦 送料負け判定（単体ツール）↗</a>
+  </nav>
+
+  <!-- ① 処分ナビ（アキネーター式） -->
+  <section class="card" id="nav-navi">
+    <h2>① これ、どうする？（質問で判定）</h2>
+    <p class="lead">数問の質問に答えると、「メルカリ／ジモティー／買取／粗大ごみ／一般ごみ」など、今のあなたに合った手放し方を提案します。</p>
+    <div id="wizard"></div>
+  </section>
+
+  <!-- ② 自治体のごみルール -->
+  <section class="card" id="nav-gov">
+    <h2>② 自治体のごみルール</h2>
+    <p class="lead">お住まいの市区町村を選ぶと、粗大ごみの基準・出し方を確認できます。全国どこでも公式ページへ飛べ、東京23区＋政令指定都市20市（札幌・横浜・大阪・名古屋・福岡 ほか）は要点を画面表示します。</p>
+    <div class="row2">
+      <div>
+        <label>都道府県</label>
+        <select id="pref"></select>
+      </div>
+      <div>
+        <label>市区町村 <span class="hint">（直接入力も可）</span></label>
+        <input type="text" id="city" placeholder="例：渋谷区 / 横浜市">
+      </div>
+    </div>
+    <div id="wardPick" class="ward-pick" style="display:none"></div>
+    <div style="margin-top:12px"><button class="btn primary" id="govOpen">公式の出し方ページを開く ↗</button></div>
+    <div id="govDetail"></div>
+
+    <div class="disc" style="margin-top:14px">
+      <b>粗大ごみの一般的な目安：</b>多くの自治体で「一辺(最長辺)が30cm以上」または「50cm以上」が粗大ごみ。それ未満は素材ごとに可燃／不燃／資源（プラ・缶・びん・ペット・古紙）などへ分別。<b>区分・基準・手数料は自治体ごとに違い、改定されます</b>。最終的な分別・申込は必ず公式でご確認ください。<br>
+      電池・スプレー缶・ライター・刃物・小型家電などは「危険ごみ・特別な出し方」が決められていることが多いので要注意です。
+    </div>
+  </section>
+
+  <!-- ③ メルカリ送料計算 -->
+  <section class="card" id="nav-calc">
+    <h2>③ メルカリ送料負け計算</h2>
+    <p class="lead">売価・サイズ・重さから、手数料・送料・梱包材を引いた「手残り」を計算し、最安の発送方法を自動で選びます。</p>
+    <div class="grid">
+      <div>
+        <label>想定売価 <span class="hint">（いくらで売れそう？）</span></label>
+        <div class="unit"><input type="number" id="price" value="1500" min="0" step="50"><span class="u">円</span></div>
+        <label>サイズの目安から選ぶ <span class="hint">測らなくてOK・近いものをタップ</span></label>
+        <div class="presets" id="presets"></div>
+        <label>サイズを直接入れる <span class="hint">長さ・幅・厚さ（cm）</span></label>
+        <div class="row3">
+          <div class="unit"><input type="number" id="d1" value="25" min="0" step="1"><span class="u">cm</span></div>
+          <div class="unit"><input type="number" id="d2" value="18" min="0" step="1"><span class="u">cm</span></div>
+          <div class="unit"><input type="number" id="d3" value="3" min="0" step="0.5"><span class="u">cm</span></div>
+        </div>
+        <label>重さ</label>
+        <div class="unit"><input type="number" id="weight" value="300" min="0" step="50"><span class="u">g</span></div>
+        <details class="adv">
+          <summary>くわしい設定（梱包材費・手間・まとめ売り）</summary>
+          <label>その他の梱包材費 <span class="hint">封筒・テープ・プチプチ等（専用箱代は自動計算）</span></label>
+          <div class="unit"><input type="number" id="material" value="30" min="0" step="10"><span class="u">円</span></div>
+          <div class="row2">
+            <div><label>出品〜発送の手間</label><div class="unit"><input type="number" id="laborMin" value="15" min="0" step="5"><span class="u">分</span></div></div>
+            <div><label>自分の時給</label><div class="unit"><input type="number" id="wage" value="1100" min="0" step="100"><span class="u">円</span></div></div>
+          </div>
+          <label>まとめ売り（1梱包の同梱点数）<span class="hint">送料を按分</span></label>
+          <div class="unit"><input type="number" id="bundle" value="1" min="1" step="1"><span class="u">点</span></div>
+        </details>
+      </div>
+      <div>
+        <div id="shipPick"></div>
+        <div id="verdict"></div>
+        <div class="net-cap">1点あたりの手残り（売価 − 手数料 − 送料 − 梱包材）</div>
+        <div class="net-big" id="netBig">—</div>
+        <div class="net-cap" id="netSub"></div>
+        <table class="bd" id="breakdown"></table>
+        <div class="actions" id="nextActions"></div>
+      </div>
+    </div>
+
+    <h3 style="font-size:.92rem;margin:18px 0 0">発送方法の比較（このサイズ・重さで使える方法）</h3>
+    <table class="cmp-t">
+      <thead><tr><th>発送方法</th><th>サービス</th><th class="num">送料+資材</th><th class="num">手残り</th><th>判定</th></tr></thead>
+      <tbody id="cmpBody"></tbody>
+    </table>
+    <div class="disc" style="margin-top:14px">
+      <b>料金は変わります。</b> 送料・手数料は「2026年6月時点の目安」（販売手数料10%・全国一律）。実際は <a href="https://jp-news.mercari.com/contents/1882" target="_blank" rel="noopener">メルカリ公式の料金一覧</a> をご確認ください。サイズ判定は入力寸法からの<b>推定</b>で、専用箱・封筒に収まるかは現物確認を（数mmの差で規格外になる場合あり）。
+    </div>
+  </section>
+
+  <footer>処分ナビ（MVP）｜ローカルで動作・データは送信されません｜料金/ごみルールの最終更新：2026年6月（出典：メルカリ公式コラム・各自治体公式）</footer>
+</div>
+
+<script>
+/* ============================ 共通 ============================ */
+const $ = id => document.getElementById(id);
+const yen = n => (n<0?'−':'') + '¥' + Math.abs(Math.round(n)).toLocaleString('ja-JP');
+
+/* ============================ ① 処分ナビ（ウィザード）============================ */
+const QS = [
+  {id:'cond', q:'今の状態は？', icon:'🔍', opts:[
+    {v:'good',  em:'✨', label:'まだ十分使える・きれい', hint:'動作OK・目立つ傷少なめ'},
+    {v:'old',   em:'🧷', label:'使えるが古い・難あり', hint:'動く/使えるが傷・汚れ・型落ち'},
+    {v:'broken',em:'🩹', label:'壊れている・価値なし', hint:'故障・破損・欠品・かなり汚い'},
+  ]},
+  {id:'size', q:'いちばん長いところは、どれくらい？', icon:'📏', opts:[
+    {v:'small', em:'📩', label:'手のひら〜30cm未満', hint:'本・服・小型雑貨・化粧品など'},
+    {v:'mid',   em:'📦', label:'30〜50cmくらい', hint:'電子レンジ・炊飯器・スツールなど'},
+    {v:'large', em:'🛋️', label:'50cm以上（大きい）', hint:'いす・本棚・布団・大型家電など'},
+  ]},
+  {id:'price', q:'売れそうな値段は？（相場）', icon:'💴', skip:s=>s.cond==='broken', opts:[
+    {v:'low',     em:'🪙', label:'〜500円くらい', hint:'送料負けしやすい'},
+    {v:'mid',     em:'💵', label:'500〜2,000円', hint:'メルカリ向きの価格帯'},
+    {v:'high',    em:'💎', label:'2,000円以上・ブランド/人気', hint:'高く売れそう'},
+    {v:'unknown', em:'❓', label:'わからない', hint:'まず相場を調べたい'},
+  ]},
+  {id:'urgent', q:'どれくらい急ぎ？', icon:'⏱️', skip:s=>s.cond==='broken', opts:[
+    {v:'yes', em:'🏃', label:'すぐ手放したい', hint:'引っ越し・片付け中など'},
+    {v:'no',  em:'🛏️', label:'時間をかけてOK', hint:'高く売れるまで待てる'},
+  ]},
+  {id:'carry', q:'自分で運べる？', icon:'🚗', opts:[
+    {v:'yes', em:'💪', label:'運べる（車あり/持てる）', hint:'店舗持込・粗大ごみ出しOK'},
+    {v:'no',  em:'🙅', label:'運べない', hint:'出張・回収を使いたい'},
+  ]},
+];
+
+const CH = {
+  mercari:     {em:'📦', name:'メルカリで売る',           blurb:'全国の買い手に。送料・手数料を引いた手残りが鍵。'},
+  jmty:        {em:'🤝', name:'ジモティーで譲る/売る',     blurb:'地元で手渡し。送料0・大型もそのまま渡せる。0円もOK。'},
+  kaitori:     {em:'💰', name:'買取に出す',               blurb:'ブランド・家電・大型は宅配/出張買取が早い。'},
+  recycle_shop:{em:'🏪', name:'リサイクルショップへ持込',  blurb:'運べるなら即現金化。値段は安めになりがち。'},
+  matome:      {em:'🧺', name:'まとめ売りにする',         blurb:'単体だと送料負け→似た物をまとめて1梱包に。'},
+  sodai:       {em:'🛋️', name:'粗大ごみに出す',          blurb:'30cm以上は多くの自治体で粗大ごみ。申込・有料。'},
+  ippan:       {em:'🗑️', name:'一般ごみで処分',          blurb:'小さく価値がなければ分別して処分。'},
+  gyosha:      {em:'🚚', name:'不用品回収を呼ぶ',         blurb:'運び出し不要・まとめて引取（有料）。急ぎ/運べない時。'},
+};
+
+let answers = {}, step = 0;
+function activeQs(){ return QS.filter(q=> !(q.skip && q.skip(answers))); }
+
+function renderWizard(){
+  const list = activeQs();
+  const w = $('wizard');
+  if(step >= list.length){ renderResult(); return; }
+  const q = list[step];
+  const dots = list.map((_,i)=>`<i class="${i<=step?'on':''}"></i>`).join('');
+  const opts = q.opts.map(o=>`
+    <button class="wz-opt" data-v="${o.v}">
+      <span class="em">${o.em}</span>
+      <span><span class="ot">${o.label}</span><br><span class="oh">${o.hint||''}</span></span>
+    </button>`).join('');
+  w.innerHTML = `
+    <div class="wz-progress">${dots}</div>
+    <p class="wz-q">${q.icon} ${q.q}</p>
+    <p class="wz-step">質問 ${step+1} / ${list.length}</p>
+    <div class="wz-opts">${opts}</div>
+    <div class="wz-bar">
+      <button class="btn ghost" id="wzBack" ${step===0?'disabled style="visibility:hidden"':''}>← もどる</button>
+      <span class="wz-step">選ぶと次へ進みます</span>
+    </div>`;
+  w.querySelectorAll('.wz-opt').forEach(b=> b.onclick=()=>{ answers[q.id]=b.dataset.v; step++; renderWizard(); });
+  const back=$('wzBack'); if(back) back.onclick=()=>{ step=Math.max(0,step-1); renderWizard(); };
+}
+
+function recommend(s){
+  const bulky = s.size!=='small';            // 30cm以上＝粗大ごみ目安
+  const large = s.size==='large';
+  const carry = s.carry==='yes';
+  const urgent = s.urgent==='yes';
+  const sc={}, why={};
+  for(const k in CH){ sc[k]=0; why[k]=[]; }
+  const add=(k,p,r)=>{ sc[k]+=p; if(r) why[k].push(r); };
+
+  if(s.cond==='broken'){
+    if(bulky){ add('sodai',6,'30cm以上で価値がつきにくい→粗大ごみが基本'); }
+    else { add('ippan',6,'小さく価値がつきにくい→分別して一般ごみへ'); }
+    add('jmty',3,'壊れていても「0円・部品取り」で欲しい人がいることも（送料0の手渡し）');
+    add('gyosha', (bulky&&!carry)?4:1, '運び出し不要でまとめて引取（有料）');
+    if(large&&!carry) add('kaitori',1,'動く大型家電なら出張買取の可能性も');
+  } else {
+    // 価値の評価
+    if(s.price==='high'){
+      add('kaitori',5,'高く売れそう→ブランド/家電は買取が早くて確実');
+      add('mercari', bulky?3:6, bulky?'高値だが大型は梱包・送料が重い':'高値が狙え、送料を引いても利益が出やすい');
+    } else if(s.price==='mid'){
+      add('mercari', bulky?2:6,'相場的にメルカリ向き（小物は手残りが出やすい）');
+      add('jmty', bulky?5:3,'手渡しなら送料0。大型でもそのまま渡せる');
+    } else if(s.price==='low'){
+      add('jmty',5,'送料を引くと赤字になりやすい→手渡しで0〜数百円');
+      add('matome', bulky?1:4,'単体では送料負け→似た物をまとめて1梱包で');
+      add('mercari', bulky?0:2,'出すなら送料負けに注意（計算で確認）');
+    } else { // unknown
+      add('mercari',3,'まず相場を検索して値付けを確認');
+      add('jmty',2,'値がつきにくければ手渡しで譲る選択も');
+      add('kaitori',2,'ブランド/家電なら買取査定でだいたいの価値がわかる');
+    }
+    // 大きさの影響
+    if(bulky){
+      add('jmty',2,'大型は送料が高く、手渡し(ジモティー)が有利');
+      add('kaitori', large?2:1,'大型は出張買取という手も');
+      add('recycle_shop', carry?2:0,'運べるならリサイクルショップ持込で即現金');
+      add('mercari',-2);
+    } else {
+      add('mercari',2);
+      add('recycle_shop', carry?1:0);
+    }
+  }
+  // 共通の修飾
+  if(urgent){
+    add('jmty',3,'急ぎなら無料即引き取りが早い');
+    add('gyosha',2,'急ぎは回収業者(有料)で即日対応も');
+    add('recycle_shop', carry?2:0,'持ち込めばその場で現金化');
+    add('mercari',-2,'メルカリは売れるまで時間がかかる');
+  }
+  if(s.carry==='no'){
+    add('recycle_shop',-4);
+    add('sodai',-1,'※粗大ごみは収集でも集積所/玄関前までの運び出しは自分で');
+    add('kaitori', large?2:0,'運べないなら出張買取');
+    add('gyosha',2,'運べないなら自宅まで回収に来てもらう');
+    add('jmty',1,'「取りに来てくれる」引取希望者を選べる');
+  }
+
+  const ranked = Object.keys(CH).map(k=>({k, s:sc[k], why:[...new Set(why[k])]}))
+    .filter(x=>x.s>0).sort((a,b)=> b.s-a.s);
+  const primary = ranked[0] || {k: bulky?'sodai':'ippan', s:1, why:['価値がつきにくい場合は処分を検討']};
+  const others = ranked.slice(1,4);
+  const keys = [primary.k, ...others.map(o=>o.k)];
+  const govType = keys.includes('sodai') ? '粗大' : keys.includes('ippan') ? '一般'
+                : (bulky && s.cond==='broken' ? '粗大' : null);
+  return {primary, others, govType, bulky};
+}
+
+function ctaFor(k){
+  switch(k){
+    case 'mercari': return {label:'送料負け計算で手残りを確認 →', act:'calc'};
+    case 'matome':  return {label:'まとめ売り前提で計算する →', act:'calc'};
+    case 'sodai':   return {label:'自治体の粗大ごみルールを見る ↓', act:'gov'};
+    case 'ippan':   return {label:'自治体の分別ルールを見る ↓', act:'gov'};
+    case 'jmty':    return {label:'ジモティーを開く ↗', href:'https://jmty.jp/'};
+    case 'kaitori': return {label:'宅配/出張買取を探す ↗', href:'https://www.google.com/search?q='+encodeURIComponent('宅配買取 出張買取 比較')};
+    case 'recycle_shop': return {label:'近くのリサイクルショップを探す ↗', href:'https://www.google.com/search?q='+encodeURIComponent('リサイクルショップ 買取 近く')};
+    case 'gyosha':  return {label:'不用品回収業者を探す ↗', href:'https://www.google.com/search?q='+encodeURIComponent('不用品回収 見積もり 比較')};
+    default: return null;
+  }
+}
+
+function renderResult(){
+  const r = recommend(answers);
+  const p = r.primary, P = CH[p.k];
+  const chips = activeQs().map(q=>{ const o=q.opts.find(x=>x.v===answers[q.id]); return o?`<span class="chip">${o.em} ${o.label}</span>`:''; }).join('');
+  const cta = ctaFor(p.k);
+  const ctaBtn = cta ? `<div class="rec-cta"><button class="btn primary" data-cta="${cta.act||''}" ${cta.href?`data-href="${cta.href}"`:''}>${cta.label}</button></div>` : '';
+  const whyLis = p.why.slice(0,3).map(x=>`<li>${x}</li>`).join('');
+
+  const others = r.others.map(o=>{
+    const C=CH[o.k], c=ctaFor(o.k);
+    const link = c ? (c.href?`<a href="${c.href}" target="_blank" rel="noopener">${c.label}</a>`:`<a href="#" data-cta="${c.act}">${c.label}</a>`) : '';
+    return `<div class="ro"><span class="em">${C.em}</span><div><div class="rn">${C.name}</div><div class="rd">${C.blurb}</div><div class="rk">${link}${o.why[0]?'　'+o.why[0]:''}</div></div></div>`;
+  }).join('');
+
+  const gov = r.govType ? `<div class="callout">🗑️ <b>${r.govType==='粗大'?'粗大ごみ／処分':'一般ごみ／処分'}</b>を選ぶなら、お住まいの自治体のルール確認が必要です。<a href="#" data-cta="gov">② 自治体のごみルールへ</a>（東京23区は基準・手数料も表示）。</div>` : '';
+
+  $('wizard').innerHTML = `
+    <div class="chips">${chips}</div>
+    <div class="rec-primary">
+      <span class="em">${P.em}</span>
+      <div>
+        <p class="rt">おすすめ：${P.name}</p>
+        <p class="rb">${P.blurb}</p>
+        <ul class="rec-why">${whyLis}</ul>
+        ${ctaBtn}
+      </div>
+    </div>
+    ${others?`<div class="rec-others"><div class="net-cap" style="font-weight:700;margin-bottom:2px">ほかの選択肢</div>${others}</div>`:''}
+    ${gov}
+    <div class="wz-bar"><button class="btn ghost" id="wzRestart">↻ 最初からやり直す</button><span class="wz-step">※ 売れ行き・最終的な損益を保証するものではありません</span></div>`;
+
+  $('wzRestart').onclick=()=>{ answers={}; step=0; renderWizard(); };
+  $('wizard').querySelectorAll('[data-cta]').forEach(el=>{
+    el.addEventListener('click',e=>{
+      const act=el.getAttribute('data-cta'), href=el.getAttribute('data-href');
+      if(href){ e.preventDefault(); window.open(href,'_blank','noopener'); return; }
+      e.preventDefault();
+      if(act==='calc') gotoCalc();
+      else if(act==='gov') document.getElementById('nav-gov').scrollIntoView({behavior:'smooth'});
+    });
+  });
+}
+
+function gotoCalc(){
+  // ウィザードの回答から計算機をざっくり初期化
+  const sizeMap={small:[22,16,3,300], mid:[40,30,12,1500], large:[70,45,35,6000]};
+  const priceMap={low:600, mid:1500, high:3500, unknown:1500};
+  const sz=sizeMap[answers.size];
+  if(sz){ $('d1').value=sz[0]; $('d2').value=sz[1]; $('d3').value=sz[2]; $('weight').value=sz[3]; }
+  if(answers.price && priceMap[answers.price]) $('price').value=priceMap[answers.price];
+  calc();
+  document.getElementById('nav-calc').scrollIntoView({behavior:'smooth'});
+}
+
+/* ============================ ② 自治体ごみルール ============================ */
+const PREFS=['北海道','青森県','岩手県','宮城県','秋田県','山形県','福島県','茨城県','栃木県','群馬県','埼玉県','千葉県','東京都','神奈川県','新潟県','富山県','石川県','福井県','山梨県','長野県','岐阜県','静岡県','愛知県','三重県','滋賀県','京都府','大阪府','兵庫県','奈良県','和歌山県','鳥取県','島根県','岡山県','広島県','山口県','徳島県','香川県','愛媛県','高知県','福岡県','佐賀県','長崎県','熊本県','大分県','宮崎県','鹿児島県','沖縄県'];
+const TOKYO_WARDS=['千代田区','中央区','港区','新宿区','文京区','台東区','墨田区','江東区','品川区','目黒区','大田区','世田谷区','渋谷区','中野区','杉並区','豊島区','北区','荒川区','板橋区','練馬区','足立区','葛飾区','江戸川区'];
+
+// 東京23区共通ルール（出典：各区公式・東京二十三区清掃一部事務組合）
+const TOKYO23 = {
+  basis:'一辺(最長辺)がおおむね30cm以上の家具・家電・寝具など',
+  apply:'申込制。粗大ごみ受付センター（インターネット or 電話）へ事前申込み',
+  ticket:'有料。コンビニ等で「粗大ごみ処理券（シール）」を購入し、品目分を貼って収集日に出す',
+  fee:'品目別で有料。おおむね400円〜2,800円程度（大型家具・家電は数千円のことも）。金額は受付時に確定',
+};
+
+// 主要都市（政令指定都市）の粗大ごみルール（出典：各市公式・2026年6月確認）
+// conf: high=全項目公式確認 / medium=一部要確認 / low=公式に数値記載なく要確認
+const CITY_RULES = {
+  '札幌市':{name:'札幌市', alias:'札幌市は「大型ごみ」', conf:'high',
+    basis:'「指定ごみ袋に入らない大きさのもの」（重量100kg超・長さ2m超・体積2㎥超は収集対象外）。サイズcm基準ではなく袋基準。',
+    apply:'申込制。大型ごみ収集センター 011-281-8153（9:00〜16:30）／インターネット受付（24時間）',
+    fee:'品目別 200円〜1,800円程度',
+    ticket:'「大型ごみ処理手数料シール」を取扱店で購入し貼付。ネット申込ならクレカ・PayPay等の電子決済も可',
+    url:'https://www.city.sapporo.jp/seiso/gomi/oogatagomi.html'},
+  '仙台市':{name:'仙台市', conf:'high',
+    basis:'最も長い部分がおおむね30cmを超え、重さ100kg以下の耐久消費財など',
+    apply:'申込制。粗大ごみ受付センター 022-716-5301／インターネット受付あり',
+    fee:'品目・大きさ別 400／800／1,200／1,600円（マットレス3,000円 等）',
+    ticket:'「手数料納付券」をコンビニ等で購入し、受付番号を記入して貼付',
+    url:'https://www.city.sendai.jp/haiki-kanri/kurashi/machi/genryo/gomi/wakekata/sodaigomi.html'},
+  'さいたま市':{name:'さいたま市', conf:'high',
+    basis:'一辺の長さ又は直径が90cm以上2m未満のもの（90cm未満は通常ごみ扱い）',
+    apply:'予約制（収集日の3営業日前まで・1回4個まで）。受付センター 048-878-0053／インターネット受付',
+    fee:'通常1品550円（特定処理困難物は1,100〜2,200円）',
+    ticket:'「粗大ごみ等処理手数料納付券」を取扱店・区役所等で購入し1品ずつ貼付',
+    url:'https://www.city.saitama.lg.jp/001/006/010/003/p072165.html'},
+  '千葉市':{name:'千葉市', conf:'high',
+    basis:'指定ごみ袋に入れて口が結べない／袋からはみ出すもの（袋基準）',
+    apply:'申込制。粗大ごみ受付センター 043-302-5374／インターネット・LINE受付',
+    fee:'品目別 1枚390円単位（390／780／1,170／1,560円）。電子決済も可',
+    ticket:'「粗大ごみ処理手数料納付券」を取扱店等で購入し必要枚数を貼付',
+    url:'https://www.city.chiba.jp/kankyo/junkan/shushugyomu/sodaigomi.html'},
+  '新潟市':{name:'新潟市', conf:'medium',
+    basis:'指定袋（燃やす/燃やさない）に入らない大きいもの（大人2人で持てるもの）。公式にcm基準の記載なし',
+    apply:'申込制。粗大ごみ受付センター 025-290-5353／ネット・LINE・チャット受付（24時間）',
+    fee:'品目別。処理券は100／200／300／500円の4種',
+    ticket:'「粗大ごみ処理券」を小売店・区役所等で購入し品物ごとに貼付',
+    url:'https://www.city.niigata.lg.jp/kurashi/gomi/gomishigen/gomidasi/niigata/discard.html'},
+  '横浜市':{name:'横浜市', conf:'high',
+    basis:'金属製品は「最も長い辺が30cm以上」、それ以外（プラ・木製等）は「最も長い辺が50cm以上」',
+    apply:'申込制。粗大ごみ受付センター 0570-200-530／045-330-3953／インターネット・LINE受付',
+    fee:'有料・品目別（金額は申込時に案内）',
+    ticket:'「粗大ごみ収集シール」を金融機関・郵便局・コンビニ等で購入し貼付（ネット/LINE申込は電子決済可）',
+    url:'https://www.city.yokohama.lg.jp/kurashi/sumai-kurashi/gomi-recycle/gomi/shushu/sodai.html'},
+  '川崎市':{name:'川崎市', conf:'high',
+    basis:'最長辺がおおむね30cm以上のもの（2m以上は処理困難物で対象外）',
+    apply:'申込制。粗大ごみ受付センター 0570-044-530／044-930-5300／インターネット24時間受付',
+    fee:'品目別・4段階。300／600／1,200円が中心（概ね300〜1,200円）',
+    ticket:'「川崎市粗大ごみ処理券」（100／300／600円券）をコンビニ等で購入',
+    url:'https://www.city.kawasaki.jp/300/page/0000012773.html'},
+  '相模原市':{name:'相模原市', conf:'high',
+    basis:'電化製品は「最も長い辺が30cm以上」、それ以外は「最も長い辺が50cm以上」',
+    apply:'申込制（戸別収集 or 直接搬入）。粗大ごみ受付センター 042-774-9933／インターネット申込',
+    fee:'戸別は品目別の手数料。直接搬入は10kgあたり190円',
+    ticket:'「粗大ごみ処理券」を取扱店で購入（申込時に枚数・購入場所を案内）',
+    url:'https://www.city.sagamihara.kanagawa.jp/kurashi/1026489/recycle/1026493/katei/1008322.html'},
+  '静岡市':{name:'静岡市', conf:'low',
+    basis:'公式ページにcm基準の明記なし（要確認）',
+    apply:'申込制（地域で集積所/戸別が異なる）。不燃・粗大ごみ受付センター 0120-532-471／インターネット受付（再申込者）',
+    fee:'公式の当該ページに金額の明記なし（要確認）',
+    ticket:'公式の当該ページに記載なし（要確認）',
+    url:'https://www.city.shizuoka.lg.jp/gomi/s000679.html'},
+  '浜松市':{name:'浜松市', alias:'浜松市は「連絡ごみ」', conf:'high',
+    basis:'長さ60cm以上のもの（60cm未満に分解できれば通常ごみ）',
+    apply:'申込制。連絡ごみ受付センター 053-453-2288／インターネット・LINE（24時間）',
+    fee:'品目別 1枚310円単位（310／620／930／1,240円 等）',
+    ticket:'「連絡ごみ処理手数料納付済証」（1枚310円）をコンビニ・公共施設で購入し貼付',
+    url:'https://www.city.hamamatsu.shizuoka.jp/ippai/gomi/dashikata/dashikata/dashikata.html'},
+  '名古屋市':{name:'名古屋市', conf:'high',
+    basis:'30cm角を超えるもの（最大辺が30cm超）',
+    apply:'申込制。粗大ごみ受付センター 0120-758-530（平日9〜17時）／インターネット24時間（キャッシュレス可）',
+    fee:'定額 250／500／1,000／1,500円',
+    ticket:'「手数料納付券」（250円券・500円券）をコンビニ・指定販売店等で購入',
+    url:'https://www.city.nagoya.jp/kurashi/category/5-6-20-0-0-0-0-0-0-0.html'},
+  '京都市':{name:'京都市', alias:'京都市は「大型ごみ」', conf:'medium',
+    basis:'公式にサイズ基準の明記なし（品目一覧表で判定）',
+    apply:'申込制。大型ごみ受付センター 0120-100-530（毎日8:30〜16:30）／インターネット（24時間）',
+    fee:'品目・大きさ別 400円〜2,400円',
+    ticket:'「粗大ごみ処理手数料券」（400円券）を必要額分組み合わせて貼付。コンビニ・区役所等で購入',
+    url:'https://www.city.kyoto.lg.jp/kankyo/page/0000001317.html'},
+  '大阪市':{name:'大阪市', conf:'high',
+    basis:'最大の辺または径が30cmを超えるもの（棒状は1m超）',
+    apply:'申込制。粗大ごみ収集受付センター 0120-79-0053／06-6530-1530／ネット・チャット・FAX・はがき',
+    fee:'1点定額。手数料券 200／400／700／1,000円の4種',
+    ticket:'「粗大ごみ処理手数料券（シール）」を販売店で購入（ネット申込はキャッシュレス可）',
+    url:'https://www.city.osaka.lg.jp/kankyo/page/0000369355.html'},
+  '堺市':{name:'堺市', conf:'high',
+    basis:'最大辺又は径がおおむね30cmを超える耐久消費財等（30cm以下は不燃小物＝無料）',
+    apply:'申込制。受付センター 0120-00-8400／06-6485-5048／インターネット（24時間・キャッシュレス可）',
+    fee:'1点定額 400〜2,000円（400円刻み5段階）',
+    ticket:'「粗大ごみ処理券」を指定取扱所で購入',
+    url:'https://www.city.sakai.lg.jp/kurashi/gomi/gomi_recy/bunbetsu/shigen/sodaigomi/index.html'},
+  '神戸市':{name:'神戸市', alias:'神戸市は「大型ごみ」', conf:'medium',
+    basis:'45Lの指定袋に入らない大きさ、または入っても単品5kg超のもの（袋・重量基準。70kg超/2.5㎥超は対象外）',
+    apply:'申込制。大型ごみ受付センター 078-392-7953／インターネット（24時間・キャッシュレス可）。1回5点まで',
+    fee:'品目別 300〜3,000円',
+    ticket:'「大型ごみシール券（処理手数料納付券）」をコンビニ等で購入',
+    url:'https://www.city.kobe.lg.jp/a04164/kurashi/recycle/gomi/dashikata/bunbetsukubun/hinmokugoto/ogatagomi/index.html'},
+  '岡山市':{name:'岡山市', conf:'high',
+    basis:'20Lの有料指定ごみ袋に入りきらないもの（1点 重さ100kg未満・長さ1.8m未満）。施設へ直接持込は無料',
+    apply:'申込制。粗大ごみ受付センター 086-227-5300／FAX／インターネット受付（24時間）',
+    fee:'戸別収集は処理券 200／500／1,000／1,500円。直接持込は無料',
+    ticket:'「粗大ごみ処理券」をコンビニ等の指定取扱店で購入（払戻・交換不可）',
+    url:'https://www.city.okayama.jp/kurashi/0000005008.html'},
+  '広島市':{name:'広島市', alias:'広島市は「大型ごみ」', conf:'high',
+    basis:'最長辺または最大径が30cm以上（棒・板状は最長辺1m以上）。家電リサイクル法対象機器は大きさ問わず対象',
+    apply:'予約制。大型ごみ受付センター 0570-082530／082-544-5300／インターネット・チャット（24時間）',
+    fee:'品目別 概ね250〜3,000円（家電リサイクル対象は別途料金）',
+    ticket:'「納付券（シール）」を市内販売所で購入',
+    url:'https://www.city.hiroshima.lg.jp/living/gomi-kankyo/1021277/1003072/1026095/1026097/1003172.html'},
+  '北九州市':{name:'北九州市', conf:'high',
+    basis:'指定袋（45L）に入らない大きさのもの、または粗大ごみとして定められたもの',
+    apply:'申込制。粗大ごみ受付センター 093-513-3005（月〜土9〜17時）／インターネット（24時間。ネット3日前・電話前日まで）',
+    fee:'品目別・4段階 300／500／700／1,000円',
+    ticket:'「粗大ごみ納付券」を指定袋取扱店で購入',
+    url:'https://www.city.kitakyushu.lg.jp/contents/924_10259.html'},
+  '福岡市':{name:'福岡市', conf:'high',
+    basis:'指定袋に入らない大きさ・重さのもの（袋・重量基準）',
+    apply:'申込制（収集日の2日前まで・1回10個まで）。粗大ごみ受付センター 092-731-1153／インターネット・LINE（24時間）',
+    fee:'大きさ・重さ別。処理券 300／500／1,000円（LINE受付はクレカ・PayPay可）',
+    ticket:'「粗大ごみ処理券」をコンビニ等で購入',
+    url:'https://kateigomi-bunbetsu.city.fukuoka.lg.jp/rule/coarseDust'},
+  '熊本市':{name:'熊本市', alias:'熊本市は「大型ごみ」', conf:'high',
+    basis:'指定袋（大袋）に入れて口を結べない大きさのもの',
+    apply:'電話申込制。ごみゼロコール 0570-00-5374（月〜土8:30〜17:00）。インターネット受付は公式に明記なし',
+    fee:'品目別 500円または900円',
+    ticket:'「大型ごみ処理シール」をコンビニ等で購入し受付番号を記入して貼付',
+    url:'https://www.city.kumamoto.jp/kankyo/kiji003552/index.html'},
+};
+// 都道府県 → 画面内蔵都市（クイック選択用）
+const PREF_CITIES = {
+  '北海道':['札幌市'], '宮城県':['仙台市'], '埼玉県':['さいたま市'], '千葉県':['千葉市'],
+  '神奈川県':['横浜市','川崎市','相模原市'], '新潟県':['新潟市'], '静岡県':['静岡市','浜松市'],
+  '愛知県':['名古屋市'], '京都府':['京都市'], '大阪府':['大阪市','堺市'], '兵庫県':['神戸市'],
+  '岡山県':['岡山市'], '広島県':['広島市'], '福岡県':['北九州市','福岡市'], '熊本県':['熊本市'],
+};
+function findCityRule(city){ if(!city) return null; return CITY_RULES[city] || CITY_RULES[city+'市'] || null; }
+
+function buildPref(){
+  const sel=$('pref'); sel.innerHTML='<option value="">選択してください</option>'+PREFS.map(p=>`<option>${p}</option>`).join('');
+  sel.onchange=()=>{
+    const wp=$('wardPick');
+    const picks = sel.value==='東京都' ? TOKYO_WARDS : (PREF_CITIES[sel.value]||[]);
+    if(picks.length){
+      wp.style.display='flex';
+      wp.innerHTML=picks.map(w=>`<button data-w="${w}">${w}</button>`).join('');
+      wp.querySelectorAll('button').forEach(b=> b.onclick=()=>{ $('city').value=b.dataset.w; renderGov(); });
+    } else { wp.style.display='none'; wp.innerHTML=''; }
+    $('city').value='';
+    renderGov();
+  };
+  $('city').addEventListener('input', renderGov);
+  $('govOpen').onclick=()=>{
+    const pref=$('pref').value, city=$('city').value.trim();
+    const q=`${pref}${city} 粗大ごみ 出し方 申し込み`.trim();
+    window.open('https://www.google.com/search?q='+encodeURIComponent(q),'_blank','noopener');
+  };
+}
+
+function renderGov(){
+  const pref=$('pref').value, city=$('city').value.trim();
+  const box=$('govDetail');
+  if(!pref && !city){ box.innerHTML='<div class="disc" style="margin-top:12px">↑ 都道府県を選ぶと、粗大ごみの基準・手数料・申込先が表示されます（東京23区＋政令市20市は要点を内蔵）。</div>'; return; }
+  const isWard = pref==='東京都' && TOKYO_WARDS.includes(city);
+  const searchUrl='https://www.google.com/search?q='+encodeURIComponent(`${pref}${city} 粗大ごみ 出し方 申し込み`);
+  if(isWard){
+    box.innerHTML=`
+      <div class="gov-card">
+        <div class="gh">${city}（東京23区）の粗大ごみ <span class="verified">区共通ルール</span></div>
+        <div class="gb">
+          <div class="gov-row"><span class="gk">粗大ごみとは</span><span class="gv">${TOKYO23.basis}<br>※ それ未満は素材ごとに可燃／不燃／資源へ分別</span></div>
+          <div class="gov-row"><span class="gk">申込み</span><span class="gv">${TOKYO23.apply}</span></div>
+          <div class="gov-row"><span class="gk">手数料</span><span class="gv">${TOKYO23.fee} <span class="estim">目安</span></span></div>
+          <div class="gov-row"><span class="gk">処理券</span><span class="gv">${TOKYO23.ticket}</span></div>
+          <div class="gov-row"><span class="gk">公式で確認</span><span class="gv"><a href="${searchUrl}" target="_blank" rel="noopener">${city} 公式の粗大ごみ申込・品目別手数料を開く ↗</a><br><a href="https://www.union.tokyo23-seisou.lg.jp/shiro/shori/sodaigomi.html" target="_blank" rel="noopener">23区共通：粗大ごみの処理（清掃一部事務組合）↗</a></span></div>
+        </div>
+      </div>
+      <div class="disc" style="margin-top:12px">基準30cm・手数料は<b>区共通のおおよその目安</b>です。実際の品目別料金・申込先・例外は各区公式で必ずご確認ください（出典：各区公式／東京二十三区清掃一部事務組合・2026年6月）。</div>`;
+  } else if(findCityRule(city)){
+    const r=findCityRule(city);
+    const badge = r.conf==='high' ? '<span class="verified">公式確認済</span>'
+                : r.conf==='low'  ? '<span class="estim">公式要確認</span>'
+                :                    '<span class="estim">一部要確認</span>';
+    box.innerHTML=`
+      <div class="gov-card">
+        <div class="gh">${r.name}の粗大ごみ${r.alias?`（${r.alias}）`:''} ${badge}</div>
+        <div class="gb">
+          <div class="gov-row"><span class="gk">粗大ごみとは</span><span class="gv">${r.basis}</span></div>
+          <div class="gov-row"><span class="gk">申込み</span><span class="gv">${r.apply}</span></div>
+          <div class="gov-row"><span class="gk">手数料</span><span class="gv">${r.fee} <span class="estim">目安</span></span></div>
+          <div class="gov-row"><span class="gk">処理券</span><span class="gv">${r.ticket}</span></div>
+          <div class="gov-row"><span class="gk">公式で確認</span><span class="gv"><a href="${r.url}" target="_blank" rel="noopener">${r.name} 公式の粗大ごみページ ↗</a><br><a href="${searchUrl}" target="_blank" rel="noopener">公式の品目別手数料・申込を検索 ↗</a></span></div>
+        </div>
+      </div>
+      <div class="disc" style="margin-top:12px">出典：${r.name}公式（2026年6月時点）。基準・手数料は改定されることがあります。品目別の正確な金額・申込は公式ページでご確認ください。${r.conf!=='high'?'<br>※この市は一部の項目が公式ページで数値確認できず、リンク先での確認をおすすめします。':''}</div>`;
+  } else {
+    box.innerHTML=`
+      <div class="gov-card">
+        <div class="gh">${pref}${city||''}のごみルール <span class="estim">公式リンクで確認</span></div>
+        <div class="gb">
+          <div class="gov-row"><span class="gk">粗大ごみ目安</span><span class="gv">多くの自治体で「最長辺30cm以上」または「50cm以上」が粗大ごみ（申込制・有料が一般的）。基準は自治体で異なります。</span></div>
+          <div class="gov-row"><span class="gk">一般ごみ</span><span class="gv">それ未満は素材で分別：可燃（燃やすごみ）／不燃／資源（プラ・缶・びん・ペット・古紙）／危険ごみ（電池・スプレー缶・刃物等）。</span></div>
+          <div class="gov-row"><span class="gk">公式で確認</span><span class="gv"><a href="${searchUrl}" target="_blank" rel="noopener">${pref}${city||''} の公式「ごみの出し方／粗大ごみ申込」を開く ↗</a></span></div>
+        </div>
+      </div>
+      <div class="disc" style="margin-top:12px">この地域は<b>公式ページへのリンクで確認</b>します（主要都市は順次内蔵を拡充中）。分別区分・手数料は自治体公式が正です。</div>`;
+  }
+}
+
+/* ============================ ③ 送料負け計算（エンジン）============================ */
+/* 料金表（出典：メルカリ公式コラム jp-news.mercari.com/contents/1882・2026年6月時点の目安）
+   ここの数字を書き換えれば最新料金に更新できます。 */
+const FEE_RATE=0.10, LOW_PROFIT=300;
+const SMALL=[
+  {name:'ゆうパケットポストmini', svc:'ゆうゆう', ship:160, mat:20, matLabel:'専用封筒20円', note:'専用封筒21×17cm・ポスト投函・2kg', limits:{long:21, mid:17, thick:3, w:2000}},
+  {name:'ネコポス',            svc:'らくらく', ship:210, mat:0,  matLabel:'',          note:'角形A4(31.2×22.8)・厚さ3cm・1kg', limits:{long:31.2, mid:22.8, thick:3, w:1000}},
+  {name:'ゆうパケットポスト',    svc:'ゆうゆう', ship:215, mat:5,  matLabel:'発送用シール5円', note:'ポスト投函・3辺60cm・厚さ3cm・2kg', limits:{long:34, thick:3, sum:60, w:2000}},
+  {name:'ゆうパケット',         svc:'ゆうゆう', ship:230, mat:0,  matLabel:'',          note:'3辺60cm・長辺34cm・厚さ3cm・1kg', limits:{long:34, thick:3, sum:60, w:1000}},
+  {name:'宅急便コンパクト',      svc:'らくらく', ship:450, mat:70, matLabel:'専用BOX70円', note:'専用BOX2種・厚さ5cmまで・重量制限なし', boxes:[{long:25, mid:20, thick:5},{long:34, mid:24.8, thick:2}]},
+  {name:'ゆうパケットプラス',    svc:'ゆうゆう', ship:455, mat:65, matLabel:'専用箱65円', note:'専用箱24×17×7cm・厚さ7cm・2kg', limits:{long:24, mid:17, thick:7, w:2000}},
+];
+const TAKKYU=[{size:60,max:2000,price:750},{size:80,max:5000,price:850},{size:100,max:10000,price:1050},{size:120,max:15000,price:1200},{size:140,max:20000,price:1450},{size:160,max:25000,price:1700},{size:180,max:30000,price:2100},{size:200,max:30000,price:2500}];
+const YUPACK=[{size:60,price:770},{size:80,price:870},{size:100,price:1070},{size:120,price:1200},{size:140,price:1450},{size:160,price:1700},{size:170,price:1900}];
+const YUPACK_MAXW=25000;
+
+const SIZE_PRESETS=[
+  {em:'📩',label:'薄い小物',sub:'本・薄手の服',d:[22,15,1],w:150},
+  {em:'👕',label:'衣類',sub:'たたんだ服',d:[30,22,4],w:400},
+  {em:'📦',label:'小箱',sub:'雑貨・化粧品',d:[25,20,7],w:800},
+  {em:'🧴',label:'中箱',sub:'靴・中型雑貨',d:[40,30,20],w:2000},
+  {em:'🍳',label:'調理家電',sub:'電子レンジ等',d:[40,35,30],w:5000},
+  {em:'🪑',label:'家具・大型',sub:'いす・本棚',d:[100,60,45],w:12000},
+];
+function buildPresets(){
+  const el=$('presets'); if(!el) return;
+  el.innerHTML=SIZE_PRESETS.map((p,i)=>`<button class="preset" data-i="${i}">${p.em} ${p.label}<span class="pm">${p.sub}</span></button>`).join('');
+  el.querySelectorAll('.preset').forEach(b=> b.onclick=()=>{ const p=SIZE_PRESETS[+b.dataset.i]; $('d1').value=p.d[0]; $('d2').value=p.d[1]; $('d3').value=p.d[2]; $('weight').value=p.w; calc(); });
+}
+function buildDims(){ const a=+$('d1').value||0,b=+$('d2').value||0,c=+$('d3').value||0; const s=[a,b,c].sort((x,y)=>y-x); return {longest:s[0],mid:s[1],thick:s[2],sum:a+b+c}; }
+function checkLimits(d,w,L){
+  if(L.long && d.longest>L.long) return `長辺${L.long}cm超`;
+  if(L.mid && d.mid>L.mid)       return `横${L.mid}cm超`;
+  if(L.thick && d.thick>L.thick) return `厚さ${L.thick}cm超`;
+  if(L.sum && d.sum>L.sum)       return `3辺合計${L.sum}cm超`;
+  if(L.w && w>L.w)               return `重さ${(L.w/1000)}kg超`;
+  return null;
+}
+function checkBoxes(d,boxes){ return boxes.some(b=> !checkLimits(d,0,b)) ? null : '専用BOXに入らない'; }
+function eligibleMethods(d,w){
+  const list=[];
+  for(const m of SMALL){
+    const reason=m.boxes?checkBoxes(d,m.boxes):checkLimits(d,w,m.limits);
+    list.push({name:m.name,svc:m.svc,ship:m.ship,mat:m.mat,matLabel:m.matLabel,cost:m.ship+m.mat,note:m.note,ok:!reason,reason});
+  }
+  const t=TAKKYU.find(x=> d.sum<=x.size && w<=x.max);
+  list.push(t?{name:`宅急便 ${t.size}サイズ`,svc:'らくらく',ship:t.price,mat:0,matLabel:'',cost:t.price,note:'集荷・追跡・補償あり',ok:true,reason:null}
+              :{name:'宅急便',svc:'らくらく',ship:0,mat:0,matLabel:'',cost:0,note:'集荷・追跡・補償あり',ok:false,reason:d.sum>200?'3辺合計200cm超':'重さ30kg超'});
+  const y=(w<=YUPACK_MAXW)?YUPACK.find(x=> d.sum<=x.size):null;
+  list.push(y?{name:`ゆうパック ${y.size}サイズ`,svc:'ゆうゆう',ship:y.price,mat:0,matLabel:'',cost:y.price,note:'集荷/コンビニ持込・追跡',ok:true,reason:null}
+              :{name:'ゆうパック',svc:'ゆうゆう',ship:0,mat:0,matLabel:'',cost:0,note:'集荷/コンビニ持込・追跡',ok:false,reason:w>YUPACK_MAXW?'重さ25kg超':'3辺合計170cm超'});
+  return list;
+}
+function calc(){
+  const price=+$('price').value||0, material=+$('material').value||0, laborMin=+$('laborMin').value||0, wage=+$('wage').value||0, bundle=Math.max(1,+$('bundle').value||1);
+  const d=buildDims(), w=+$('weight').value||0;
+  const methods=eligibleMethods(d,w), ok=methods.filter(m=>m.ok);
+  const best=ok.length?ok.reduce((a,b)=> b.cost<a.cost?b:a):null;
+  renderCalc({price,material,laborMin,wage,bundle,best}); renderCompare(methods,best);
+}
+function renderCalc(o){
+  const v=$('verdict'),nb=$('netBig'),ns=$('netSub'),bd=$('breakdown'),na=$('nextActions'),sp=$('shipPick');
+  if(!o.best){ sp.className=''; sp.innerHTML=''; v.innerHTML=card('v-bad',iconAlert(),'発送方法が見つかりません','標準的なメルカリ便の規格を超えています。サイズを見直すか公式でご確認ください。'); nb.textContent='—'; ns.textContent=''; bd.innerHTML=''; na.innerHTML=''; return; }
+  sp.className='ship-pick';
+  sp.innerHTML=`<span class="pe">📮</span><div><div class="pl">いちばん安い送り方</div><div class="pn">${o.best.name}</div></div><div class="pc"><div class="pl">送料＋資材</div><b>${yen(o.best.cost)}</b></div>`;
+  const fee=Math.floor(o.price*FEE_RATE), ship=o.best.cost/o.bundle, net=o.price-fee-ship-o.material;
+  const margin=o.price>0?net/o.price*100:0, laborCost=o.wage*o.laborMin/60, realNet=net-laborCost;
+  const breakEven=Math.ceil((o.best.cost/o.bundle+o.material)/(1-FEE_RATE));
+  const targetPrice=Math.ceil((o.best.cost/o.bundle+o.material+LOW_PROFIT)/(1-FEE_RATE));
+  nb.className='net-big '+(net<0?'neg':'pos'); nb.textContent=yen(net);
+  ns.textContent=`手残り率 ${margin.toFixed(0)}%　／　手間考慮後 ${yen(realNet)}（時給換算 ${yen(laborCost)}）`;
+  let cls,ic,t,dsc;
+  if(net<0){ cls='v-bad'; ic=iconAlert(); t='送料負け'; dsc='売っても赤字です。このまま単体で出すと損になります。'; }
+  else if(net<LOW_PROFIT||realNet<0){ cls='v-warn'; ic=iconWarn(); t=realNet<0?'手間負けの可能性':'薄利ライン';
+    dsc=realNet<0?`手残り ${yen(net)} に対し手間が ${yen(laborCost)}。労力に見合わない可能性。`:`黒字ですが少なめ（${yen(net)}）。まとめ売りや値上げの余地。`; }
+  else { cls='v-ok'; ic=iconCheck(); t='出品する価値あり'; dsc=`手残り ${yen(net)}（率${margin.toFixed(0)}%）。手間を考慮しても利益が残ります。`; }
+  v.innerHTML=card(cls,ic,t,dsc);
+  bd.innerHTML=`
+    <tr><td>想定売価</td><td>${yen(o.price)}</td></tr>
+    <tr class="minus"><td>販売手数料（10%）</td><td>−${yen(fee)}</td></tr>
+    <tr class="minus"><td>送料＋資材（${o.best.name}${o.best.matLabel?'＋'+o.best.matLabel:''}${o.bundle>1?` ÷${o.bundle}点`:''}）</td><td>−${yen(ship)}</td></tr>
+    <tr class="minus"><td>その他梱包材費</td><td>−${yen(o.material)}</td></tr>
+    <tr class="total"><td>手残り</td><td>${yen(net)}</td></tr>`;
+  let acts;
+  if(net<0) acts=[`黒字には <b>${yen(breakEven)} 以上</b>で売る必要があります（この発送方法の場合）。`,`売れないなら <b>まとめ売り</b>で送料按分、または <b>ジモティー/買取/処分</b>を検討。`,`梱包を薄くして安い発送方法に収められないか確認。`];
+  else if(net<LOW_PROFIT||realNet<0) acts=[`<b>まとめ売り</b>で送料を按分すると手残りが伸びます（同梱点数を上げて再計算）。`,`手残り ${yen(LOW_PROFIT)} を確保する売価の目安は <b>${yen(targetPrice)}</b>。`,`急がないなら相場が上がるまで保留も手。`];
+  else acts=[`そのまま <b>${o.best.name}</b> で出品OK。送料負けの心配はありません。`,`損益分岐は <b>${yen(breakEven)}</b>。これを下回る値下げは赤字ラインです。`];
+  na.innerHTML='<div class="net-cap" style="font-weight:700;margin:10px 0 4px">次の一手</div>'+acts.map((a,i)=>`<div class="a"><span class="n">${i+1}</span><span>${a}</span></div>`).join('');
+}
+function renderCompare(methods,best){
+  const price=+$('price').value||0, fee=Math.floor(price*FEE_RATE), material=+$('material').value||0, bundle=Math.max(1,+$('bundle').value||1);
+  const ok=methods.filter(m=>m.ok).sort((a,b)=>a.cost-b.cost), ng=methods.filter(m=>!m.ok);
+  $('cmpBody').innerHTML=[...ok,...ng].map(m=>{
+    const ship=m.cost/bundle, net=price-fee-ship-material, isBest=best&&m.name===best.name, netCls=net<0?'neg':'pos';
+    const sub=m.ok?m.note:`${m.note}<br><span style="color:var(--bad)">✕ ${m.reason}</span>`;
+    return `<tr class="${isBest?'best':''} ${m.ok?'':'ng'}"><td>${m.name}${isBest?' <span class="tag">推奨</span>':''}<div style="font-size:.7rem;color:var(--muted)">${sub}</div></td><td>${m.svc}</td><td class="num">${m.ok?yen(m.cost):'—'}</td><td class="num net-cell ${m.ok?netCls:''}">${m.ok?yen(net):'—'}</td><td>${m.ok?'<span class="tag">使える</span>':`<span class="tag ng">規格外</span>`}</td></tr>`;
+  }).join('');
+}
+function card(cls,ico,t,d){return `<div class="verdict ${cls}"><div class="ico">${ico}</div><div><p class="vt">${t}</p><p class="vd">${d}</p></div></div>`;}
+function iconCheck(){return svg('<path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><path d="M22 4 12 14.01l-3-3"/>');}
+function iconWarn(){return svg('<path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><path d="M12 9v4M12 17h.01"/>');}
+function iconAlert(){return svg('<circle cx="12" cy="12" r="10"/><path d="M15 9l-6 6M9 9l6 6"/>');}
+function svg(i){return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${i}</svg>`;}
+
+/* ============================ 初期化 ============================ */
+['price','d1','d2','d3','weight','material','laborMin','wage','bundle'].forEach(id=> $(id).addEventListener('input',calc));
+renderWizard();
+buildPref();
+buildPresets();
+calc();
+renderGov();
+</script>
+</body>
+</html>
