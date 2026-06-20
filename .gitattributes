@@ -1,0 +1,4 @@
+# テキストは自動判定し、リポジトリ内ではLFに正規化（CRLF警告の抑制）
+* text=auto eol=lf
+*.png binary
+*.ico binary

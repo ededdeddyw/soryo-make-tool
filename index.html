@@ -448,7 +448,7 @@ function renderResult(){
     return `<div class="ro"><span class="em">${C.em}</span><div><div class="rn">${C.name}</div><div class="rd">${C.blurb}</div><div class="rk">${link}${o.why[0]?'　'+o.why[0]:''}</div></div></div>`;
   }).join('');
 
-  const gov = r.govType ? `<div class="callout">🗑️ <b>${r.govType==='粗大'?'粗大ごみ／処分':'一般ごみ／処分'}</b>を選ぶなら、お住まいの自治体のルール確認が必要です。<a href="#" data-cta="gov">② 自治体のごみルールへ</a>（東京23区は基準・手数料も表示）。</div>` : '';
+  const gov = r.govType ? `<div class="callout">🗑️ <b>${r.govType==='粗大'?'粗大ごみ／処分':'一般ごみ／処分'}</b>を選ぶなら、お住まいの自治体のルール確認が必要です。<a href="#" data-cta="gov">② 自治体のごみルールへ</a>（東京23区は基準・手数料も表示）。<br><a href="reminder.html">🔔 収集日リマインドを設定して出し忘れを防ぐ →</a></div>` : '';
 
   $('wizard').innerHTML = `
     <div class="chips">${chips}</div>
