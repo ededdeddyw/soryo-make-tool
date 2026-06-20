@@ -303,6 +303,19 @@ const CH = {
   gyosha:      {em:'🚚', name:'不用品回収を呼ぶ',         blurb:'運び出し不要・まとめて引取（有料）。急ぎ/運べない時。'},
 };
 
+/* 外部リンク／収益導線（アフィリエイト差し替えポイント）
+   ─ ここのURLを各ASP（A8.net・もしも 等）の広告URLに差し替えるだけで、
+     画面内の該当リンクすべてに反映されます。
+   ─ 空文字 '' のままなら、その場で「Googleで探す」検索リンクを自動生成します。 */
+const LINKS = {
+  jmty:        'https://jmty.jp/',   // ジモティー（提携リンクに差し替え可）
+  kaitori:     '',                   // 宅配/出張買取（空→検索: 宅配買取 出張買取 比較）
+  recycle_shop:'',                   // リサイクルショップ（空→検索: リサイクルショップ 買取 近く）
+  gyosha:      '',                   // 不用品回収（空→検索: 不用品回収 見積もり 比較）
+};
+const searchUrl = q => 'https://www.google.com/search?q='+encodeURIComponent(q);
+const linkFor = (k, q) => LINKS[k] || searchUrl(q);
+
 let answers = {}, step = 0;
 function activeQs(){ return QS.filter(q=> !(q.skip && q.skip(answers))); }
 
@@ -404,10 +417,10 @@ function ctaFor(k){
     case 'matome':  return {label:'まとめ売り前提で計算する →', act:'calc'};
     case 'sodai':   return {label:'自治体の粗大ごみルールを見る ↓', act:'gov'};
     case 'ippan':   return {label:'自治体の分別ルールを見る ↓', act:'gov'};
-    case 'jmty':    return {label:'ジモティーを開く ↗', href:'https://jmty.jp/'};
-    case 'kaitori': return {label:'宅配/出張買取を探す ↗', href:'https://www.google.com/search?q='+encodeURIComponent('宅配買取 出張買取 比較')};
-    case 'recycle_shop': return {label:'近くのリサイクルショップを探す ↗', href:'https://www.google.com/search?q='+encodeURIComponent('リサイクルショップ 買取 近く')};
-    case 'gyosha':  return {label:'不用品回収業者を探す ↗', href:'https://www.google.com/search?q='+encodeURIComponent('不用品回収 見積もり 比較')};
+    case 'jmty':    return {label:'ジモティーを開く ↗', href:linkFor('jmty','')};
+    case 'kaitori': return {label:'宅配/出張買取を探す ↗', href:linkFor('kaitori','宅配買取 出張買取 比較')};
+    case 'recycle_shop': return {label:'近くのリサイクルショップを探す ↗', href:linkFor('recycle_shop','リサイクルショップ 買取 近く')};
+    case 'gyosha':  return {label:'不用品回収業者を探す ↗', href:linkFor('gyosha','不用品回収 見積もり 比較')};
     default: return null;
   }
 }
