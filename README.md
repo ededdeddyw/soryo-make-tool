@@ -28,6 +28,17 @@
 - 更新方法：ファイルを編集 → `git add -A && git commit && git push` → 数十秒でサイトへ自動反映。
 - 公開向けに各HTMLへ `meta description`／OGタグ（リンク共有時のプレビュー）／favicon／theme-color を追加済み。
 
+## PWA対応（ホーム追加・オフライン）
+- `manifest.json`＋`sw.js`（Service Worker）＋アイコン（`icon-192/512.png`・`icon-180.png`＝iOS用・`icon.svg`）を追加済み。
+- スマホで公開URLを開き「ホーム画面に追加」すると、全画面・オフラインで起動するアプリ風に。アイコンはブランドのキューブ（緑地に白）。
+- アイコンは依存ゼロのNodeスクリプトで自前生成（lucide box をラスタライズ）。Service WorkerはHTTPS/localhostでのみ有効（file://直開きでは無効だが、その場合もツール自体は動く）。
+- 更新を確実に反映するには、ファイル変更時に `sw.js` の `CACHE` を `v1→v2…` と上げる。
+
+## ネイティブ化ロードマップ（将来）
+- 方針：Web→**PWA**（実装済み）→**Capacitorでストア配信**（今の単一HTML資産を再利用、フル再開発は不要）。
+- Apple審査の注意：ただのWebラッパーは「ガイドライン4.2」でリジェクトされやすい。差別化＆審査対策として「粗大ごみ収集日のローカル通知（ネイティブ通知）」の追加が有効。
+- 費用目安：Apple Developer 年$99／Google Play 一回$25。
+
 ## 収益導線（アフィリエイト準備済み）
 - 外部リンクは index.html の `LINKS` 定数（script冒頭）に集約済み。jmty／kaitori／recycle_shop／gyosha のURLを各ASP（A8.net・もしも 等）の広告URLに差し替えるだけで画面の該当リンク全てに反映。
 - 空文字 '' のままなら「Googleで探す」検索リンクを自動生成（現状の既定）。架空の提携リンクは未設定（実IDの登録が必要）。
