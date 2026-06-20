@@ -1,0 +1,317 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ごみ収集日リマインド｜カレンダーに登録（処分ナビ）</title>
+<meta name="description" content="自分のごみ収集日（曜日・第N週）を入力すると、スマホのカレンダーに通知付きで登録できる.icsを作成。可燃・不燃・プラ・資源・粗大に対応。ローカル動作・データ送信なし。">
+<meta name="theme-color" content="#2e6b3e">
+<meta property="og:type" content="website">
+<meta property="og:title" content="ごみ収集日リマインド｜カレンダーに登録">
+<meta property="og:description" content="収集日を入力→スマホのカレンダーに通知付きで一括登録。出し忘れを防ぎます。">
+<link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2024%2024'%20fill='none'%20stroke='%232e6b3e'%20stroke-width='2'%20stroke-linecap='round'%20stroke-linejoin='round'%3E%3Cpath%20d='M21%2016V8a2%202%200%200%200-1-1.73l-7-4a2%202%200%200%200-2%200l-7%204A2%202%200%200%200%203%208v8a2%202%200%200%200%201%201.73l7%204a2%202%200%200%200%202%200l7-4A2%202%200%200%200%2021%2016z'/%3E%3Cpath%20d='M3.27%206.96%2012%2012.01l8.73-5.05M12%2022.08V12'/%3E%3C/svg%3E">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-180.png">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="収集日">
+<script>if('serviceWorker' in navigator){addEventListener('load',function(){navigator.serviceWorker.register('sw.js').catch(function(){});});}</script>
+<style>
+  :root{
+    --bg:#f4f7f5; --card:#ffffff; --ink:#1f2a24; --muted:#6b7a72;
+    --line:#e2e9e4; --accent:#2e6b3e; --accent-soft:#e7f1ea;
+    --ok:#2e8b57; --ok-bg:#e6f4ec; --warn:#b7791f; --warn-bg:#fbf2df;
+    --bad:#c0392b; --blue:#2b6cb0; --blue-bg:#e8f1fa;
+    --radius:14px; --shadow:0 2px 10px rgba(31,42,36,.06);
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:"Hiragino Sans","Yu Gothic UI","Segoe UI",system-ui,sans-serif;
+    background:var(--bg);color:var(--ink);line-height:1.6;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:760px;margin:0 auto;padding:18px 16px 72px}
+  header.hero{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin:6px 0 10px}
+  .logo{width:46px;height:46px;border-radius:12px;background:var(--accent);display:grid;place-items:center;flex:0 0 auto;box-shadow:var(--shadow)}
+  .logo svg{width:26px;height:26px}
+  h1{font-size:1.28rem;margin:0}
+  .sub{font-size:.82rem;color:var(--muted);margin:2px 0 0}
+  .toplink{font-size:.8rem;margin:0 0 14px}
+  .toplink a{color:var(--accent);font-weight:700;text-decoration:none;background:#fff;border:1px solid var(--line);border-radius:999px;padding:6px 13px;box-shadow:var(--shadow)}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:18px;box-shadow:var(--shadow);margin-bottom:16px}
+  .card h2{font-size:1rem;margin:0 0 4px}
+  .card .lead{font-size:.82rem;color:var(--muted);margin:0 0 14px}
+  .presets{display:flex;flex-wrap:wrap;gap:7px;margin:2px 0 0}
+  .preset{font:inherit;font-size:.86rem;font-weight:700;cursor:pointer;border:1px solid var(--line);background:#fff;border-radius:12px;padding:9px 13px;color:var(--ink);transition:.15s}
+  .preset:hover{border-color:var(--accent);background:var(--accent-soft);transform:translateY(-1px)}
+  .btn{font:inherit;font-weight:700;cursor:pointer;border-radius:10px;padding:11px 16px;border:1px solid var(--line);background:#fff;color:var(--ink)}
+  .btn.primary{background:var(--accent);color:#fff;border-color:var(--accent)}
+  .btn.primary:disabled{background:#a9c6b4;border-color:#a9c6b4;cursor:not-allowed}
+  .btn.ghost{color:var(--muted)}
+  .btn:hover:not(:disabled){filter:brightness(.98)}
+  .empty{font-size:.86rem;color:var(--muted);text-align:center;padding:18px 8px;border:1px dashed var(--line);border-radius:12px}
+  .item{border:1px solid var(--line);border-radius:12px;padding:13px 14px;margin-bottom:11px}
+  .item-top{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+  .item-top .em{font-size:1.4rem;flex:0 0 auto}
+  .item-top input.nm{flex:1;font:inherit;font-weight:700;font-size:.98rem;border:1px solid transparent;background:transparent;border-radius:8px;padding:5px 7px;color:var(--ink)}
+  .item-top input.nm:hover{border-color:var(--line)}
+  .item-top input.nm:focus{outline:none;border-color:var(--accent);background:#fff}
+  .item-top .del{flex:0 0 auto;border:none;background:none;color:var(--muted);font-size:1.1rem;cursor:pointer;padding:4px 8px;border-radius:8px}
+  .item-top .del:hover{background:var(--warn-bg);color:var(--bad)}
+  .seg{display:inline-flex;border:1px solid var(--line);border-radius:9px;overflow:hidden;margin-bottom:9px}
+  .seg button{font:inherit;font-size:.82rem;font-weight:700;border:none;background:#fff;color:var(--muted);padding:7px 14px;cursor:pointer}
+  .seg button.on{background:var(--accent);color:#fff}
+  .lbl{font-size:.74rem;color:var(--muted);font-weight:700;margin:6px 0 4px}
+  .toggles{display:flex;flex-wrap:wrap;gap:6px}
+  .tg{font:inherit;font-size:.82rem;font-weight:700;min-width:38px;text-align:center;border:1px solid var(--line);background:#fff;color:var(--ink);border-radius:9px;padding:7px 9px;cursor:pointer;transition:.12s}
+  .tg.on{background:var(--accent);color:#fff;border-color:var(--accent)}
+  .tg.sun.on{background:#c0392b;border-color:#c0392b}
+  .tg.sat.on{background:#2b6cb0;border-color:#2b6cb0}
+  .tg:hover:not(.on){border-color:var(--accent)}
+  .item-foot{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-top:11px;padding-top:10px;border-top:1px solid var(--line)}
+  .item-foot label{font-size:.74rem;color:var(--muted);font-weight:700}
+  .item-foot input[type=time]{font:inherit;border:1px solid var(--line);border-radius:8px;padding:6px 8px;color:var(--ink)}
+  .next{font-size:.84rem;font-weight:700;color:var(--accent)}
+  .next.none{color:var(--muted);font-weight:400}
+  .gcal{font-size:.78rem;color:var(--accent);text-decoration:none;font-weight:700;margin-left:auto}
+  .gcal:hover{text-decoration:underline}
+  .actions{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:4px}
+  .remind-row{display:flex;align-items:center;gap:8px;font-size:.8rem;color:var(--muted);margin:6px 0 2px}
+  .remind-row select{font:inherit;border:1px solid var(--line);border-radius:8px;padding:6px 8px;color:var(--ink);background:#fff}
+  .callout{margin-top:12px;background:var(--blue-bg);border:1px solid #bcd6ef;border-radius:11px;padding:12px 14px;font-size:.82rem}
+  .callout b{color:var(--blue)}
+  .disc{font-size:.74rem;color:var(--muted);background:#fff;border:1px dashed var(--line);border-radius:10px;padding:11px 13px;margin-top:14px}
+  .disc b{color:var(--ink)}
+  footer{margin-top:20px;font-size:.73rem;color:var(--muted);text-align:center}
+  a{color:var(--accent)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="hero">
+    <div class="logo" aria-hidden="true">
+      <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
+        <path d="M3.27 6.96 12 12.01l8.73-5.05M12 22.08V12"/>
+      </svg>
+    </div>
+    <div>
+      <h1>ごみ収集日リマインド</h1>
+      <p class="sub">自分の収集日を入れて、スマホのカレンダーに通知付きで登録</p>
+    </div>
+  </header>
+  <p class="toplink"><a href="index.html">🧭 処分ナビ（売る・譲る・捨てるの判定）に戻る →</a></p>
+
+  <section class="card">
+    <h2>① ごみの種類を追加</h2>
+    <p class="lead">よく出すごみをタップして追加。あとで曜日や名前を変えられます。</p>
+    <div class="presets" id="presets"></div>
+  </section>
+
+  <section class="card">
+    <h2>② 収集日を設定</h2>
+    <p class="lead">各ごみの「曜日」または「第N週の曜日」を選びます。お住まいの自治体の収集日に合わせてください。</p>
+    <div id="list"></div>
+  </section>
+
+  <section class="card">
+    <h2>③ カレンダーに登録</h2>
+    <p class="lead">下のボタンで、設定したすべての収集日を1ファイル（.ics）でまとめてダウンロード。スマホで開くとカレンダーに通知付きで登録できます。各行の「Googleカレンダー」からは1種類ずつ追加できます。</p>
+    <div class="actions">
+      <button class="btn primary" id="dlIcs" disabled>📅 カレンダーに追加（.ics をダウンロード）</button>
+      <button class="btn ghost" id="clearAll">すべて削除</button>
+    </div>
+    <div class="callout">📲 <b>使い方：</b>スマホでこのページを開き、上のボタンでダウンロード → ファイルを開く → 「カレンダーに追加」。iPhoneは標準カレンダー、Androidはほぼ Googleカレンダー に入ります。前日の夜などに通知が出ます（時刻は各行で調整可）。</div>
+  </section>
+
+  <div class="disc">
+    <b>収集日はお住まいの自治体公式でご確認ください。</b> 本ツールは入力した内容をカレンダー用ファイルに変換するだけで、自治体ごとの収集日データは内蔵していません（祝日の収集休みなどは反映されません）。設定内容はこの端末の中だけに保存され、外部に送信されません。
+  </div>
+
+  <footer>処分ナビ｜収集日リマインド（MVP）｜ローカルで動作・データは送信されません</footer>
+</div>
+
+<script>
+const $ = id => document.getElementById(id);
+const WCODE=['SU','MO','TU','WE','TH','FR','SA'];
+const WJ=['日','月','火','水','木','金','土'];
+const STORE='shobun-navi.reminders';
+
+const PRESETS=[
+  {id:'fire',   em:'🔥', name:'可燃ごみ'},
+  {id:'noncomb',em:'🪨', name:'不燃ごみ'},
+  {id:'plastic',em:'♻️', name:'プラ'},
+  {id:'can',    em:'🥫', name:'資源（缶・びん・ペット）'},
+  {id:'paper',  em:'📦', name:'古紙・新聞'},
+  {id:'oversize',em:'🛋️',name:'粗大ごみ'},
+  {id:'other',  em:'✏️', name:'その他'},
+];
+
+let state=load(), uidSeq=1;
+function load(){ try{ const a=JSON.parse(localStorage.getItem(STORE)||'[]'); return Array.isArray(a)?a:[]; }catch(e){ return []; } }
+function save(){ try{ localStorage.setItem(STORE, JSON.stringify(state)); }catch(e){} }
+function newUid(){ return 'r'+(Date.now().toString(36))+(uidSeq++); }
+
+/* ---- 日付計算 ---- */
+function pad(n){ return String(n).padStart(2,'0'); }
+function matches(p,d){
+  const dow=d.getDay();
+  if(p.type==='weekly') return p.days && p.days.includes(dow);
+  if(p.type==='monthly'){ if(d.getDay()!==p.day) return false; const wk=Math.floor((d.getDate()-1)/7)+1; return p.weeks && p.weeks.includes(wk); }
+  return false;
+}
+function hasPattern(p){ return p.type==='weekly' ? (p.days&&p.days.length>0) : (p.weeks&&p.weeks.length>0 && p.day!=null); }
+function nextOccurrences(p,count){
+  const res=[]; const now=new Date(); let d=new Date(now.getFullYear(),now.getMonth(),now.getDate());
+  for(let i=0;i<366 && res.length<count;i++){ if(matches(p,d)) res.push(new Date(d)); d.setDate(d.getDate()+1); }
+  return res;
+}
+function rrule(p){
+  if(p.type==='weekly') return 'FREQ=WEEKLY;BYDAY='+p.days.slice().sort((a,b)=>a-b).map(x=>WCODE[x]).join(',');
+  const by=p.weeks.slice().sort((a,b)=>a-b).map(w=>w+WCODE[p.day]);
+  return 'FREQ=MONTHLY;BYDAY='+by.join(',');
+}
+
+/* ---- .ics / Googleカレンダー ---- */
+function fmtLocal(d,time){ const [h,mi]=time.split(':'); return d.getFullYear()+pad(d.getMonth()+1)+pad(d.getDate())+'T'+pad(+h)+pad(+mi)+'00'; }
+function fmtUTC(d){ return d.getUTCFullYear()+pad(d.getUTCMonth()+1)+pad(d.getUTCDate())+'T'+pad(d.getUTCHours())+pad(d.getUTCMinutes())+pad(d.getUTCSeconds())+'Z'; }
+function esc(s){ return String(s).replace(/[\\;,]/g,m=>'\\'+m).replace(/\n/g,'\\n'); }
+function endTime(time){ const [h,mi]=time.split(':').map(Number); let t=h*60+mi+30; t%=1440; return pad(Math.floor(t/60))+':'+pad(t%60); }
+
+function buildICS(items){
+  const stamp=fmtUTC(new Date());
+  const L=['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//shobun-navi//gomi-reminder//JP','CALSCALE:GREGORIAN','METHOD:PUBLISH'];
+  items.forEach((it,idx)=>{
+    const occ=nextOccurrences(it.pattern,1); if(!occ.length) return;
+    const title=`${it.em} ${it.name}（収集日）`;
+    L.push('BEGIN:VEVENT');
+    L.push('UID:'+it.uid+'-'+idx+'@shobun-navi');
+    L.push('DTSTAMP:'+stamp);
+    L.push('DTSTART:'+fmtLocal(occ[0],it.time));
+    L.push('DURATION:PT30M');
+    L.push('RRULE:'+rrule(it.pattern));
+    L.push('SUMMARY:'+esc(title));
+    L.push('BEGIN:VALARM');
+    L.push('ACTION:DISPLAY');
+    L.push('DESCRIPTION:'+esc(title));
+    L.push('TRIGGER:-PT'+(it.remind||12)+'H');
+    L.push('END:VALARM');
+    L.push('END:VEVENT');
+  });
+  L.push('END:VCALENDAR');
+  return L.join('\r\n');
+}
+function gcalUrl(it){
+  const occ=nextOccurrences(it.pattern,1); if(!occ.length) return null;
+  const start=fmtLocal(occ[0],it.time), end=fmtLocal(occ[0],endTime(it.time));
+  const params=new URLSearchParams({action:'TEMPLATE',text:`${it.em} ${it.name}（収集日）`,dates:start+'/'+end,recur:'RRULE:'+rrule(it.pattern),ctz:'Asia/Tokyo'});
+  return 'https://calendar.google.com/calendar/render?'+params.toString();
+}
+function download(name,text){
+  const blob=new Blob([text],{type:'text/calendar;charset=utf-8'});
+  const url=URL.createObjectURL(blob), a=document.createElement('a');
+  a.href=url; a.download=name; document.body.appendChild(a); a.click();
+  setTimeout(()=>{ document.body.removeChild(a); URL.revokeObjectURL(url); },0);
+}
+
+/* ---- 操作 ---- */
+function addItem(preset){
+  state.push({uid:newUid(), id:preset.id, em:preset.em, name:preset.name, pattern:{type:'weekly',days:[]}, time:'08:00', remind:12});
+  save(); render();
+}
+function findItem(uid){ return state.find(x=>x.uid===uid); }
+function removeItem(uid){ state=state.filter(x=>x.uid!==uid); save(); render(); }
+function setType(uid,type){ const it=findItem(uid); if(!it)return; if(it.pattern.type===type)return;
+  it.pattern = type==='weekly' ? {type:'weekly',days:[]} : {type:'monthly',weeks:[],day:null}; save(); render(); }
+function toggleDay(uid,dow){ const it=findItem(uid); if(!it)return; const a=it.pattern.days; const i=a.indexOf(dow); i<0?a.push(dow):a.splice(i,1); save(); render(); }
+function setMonthDay(uid,dow){ const it=findItem(uid); if(!it)return; it.pattern.day=dow; save(); render(); }
+function toggleWeek(uid,w){ const it=findItem(uid); if(!it)return; const a=it.pattern.weeks; const i=a.indexOf(w); i<0?a.push(w):a.splice(i,1); save(); render(); }
+function setTime(uid,v){ const it=findItem(uid); if(it){ it.time=v||'08:00'; save(); refreshNext(uid); } }
+function setRemind(uid,v){ const it=findItem(uid); if(it){ it.remind=+v; save(); } }
+function setName(uid,v){ const it=findItem(uid); if(it){ it.name=v; save(); } }
+
+/* ---- 描画 ---- */
+function nextLabel(it){
+  if(!hasPattern(it.pattern)) return {txt:'↑ 曜日を選んでください', none:true};
+  const occ=nextOccurrences(it.pattern,1);
+  if(!occ.length) return {txt:'—', none:true};
+  const d=occ[0];
+  return {txt:`次回 ${d.getMonth()+1}/${d.getDate()}（${WJ[d.getDay()]}）`, none:false};
+}
+function refreshNext(uid){
+  const it=findItem(uid); if(!it) return;
+  const el=document.querySelector(`[data-next="${uid}"]`); if(!el) return;
+  const n=nextLabel(it); el.textContent=n.txt; el.className='next'+(n.none?' none':'');
+}
+function render(){
+  $('presets').innerHTML=PRESETS.map((p,i)=>`<button class="preset" data-i="${i}">${p.em} ${p.name}</button>`).join('');
+  $('presets').querySelectorAll('.preset').forEach(b=> b.onclick=()=> addItem(PRESETS[+b.dataset.i]));
+
+  const list=$('list');
+  if(!state.length){ list.innerHTML='<div class="empty">まだ追加されていません。上の「① ごみの種類を追加」からタップしてください。</div>'; }
+  else {
+    list.innerHTML=state.map(it=>{
+      const isW=it.pattern.type==='weekly';
+      const dayBtns=WJ.map((w,i)=>{
+        const on = isW ? it.pattern.days.includes(i) : it.pattern.day===i;
+        const cls='tg'+(i===0?' sun':i===6?' sat':'')+(on?' on':'');
+        return `<button class="${cls}" data-day="${i}">${w}</button>`;
+      }).join('');
+      const weekBtns=[1,2,3,4,5].map(w=>`<button class="tg${it.pattern.weeks&&it.pattern.weeks.includes(w)?' on':''}" data-week="${w}">第${w}</button>`).join('');
+      const n=nextLabel(it);
+      const gurl=hasPattern(it.pattern)?gcalUrl(it):null;
+      return `
+      <div class="item" data-uid="${it.uid}">
+        <div class="item-top">
+          <span class="em">${it.em}</span>
+          <input class="nm" value="${(it.name||'').replace(/"/g,'&quot;')}" aria-label="名称">
+          <button class="del" title="削除">✕</button>
+        </div>
+        <div class="seg">
+          <button data-type="weekly" class="${isW?'on':''}">毎週</button>
+          <button data-type="monthly" class="${!isW?'on':''}">第N週</button>
+        </div>
+        ${isW?'':`<div class="lbl">第何週？（複数可）</div><div class="toggles weeks">${weekBtns}</div>`}
+        <div class="lbl">${isW?'曜日（複数可）':'曜日（1つ）'}</div>
+        <div class="toggles days">${dayBtns}</div>
+        <div class="item-foot">
+          <label>時刻 <input type="time" value="${it.time}" data-time></label>
+          <span class="next${n.none?' none':''}" data-next="${it.uid}">${n.txt}</span>
+          ${gurl?`<a class="gcal" href="${gurl}" target="_blank" rel="noopener">Googleカレンダー ↗</a>`:''}
+        </div>
+        <div class="remind-row">通知タイミング：
+          <select data-remind>
+            <option value="12"${it.remind==12?' selected':''}>前日の夜（12時間前）</option>
+            <option value="2"${it.remind==2?' selected':''}>当日（2時間前）</option>
+            <option value="13"${it.remind==13?' selected':''}>前日の朝（13時間前）※朝8時設定時</option>
+            <option value="24"${it.remind==24?' selected':''}>前日の同時刻（24時間前）</option>
+          </select>
+        </div>
+      </div>`;
+    }).join('');
+
+    list.querySelectorAll('.item').forEach(card=>{
+      const uid=card.dataset.uid;
+      card.querySelector('.del').onclick=()=>removeItem(uid);
+      card.querySelector('.nm').oninput=e=>setName(uid,e.target.value);
+      card.querySelectorAll('.seg button').forEach(b=> b.onclick=()=>setType(uid,b.dataset.type));
+      card.querySelectorAll('.days .tg').forEach(b=> b.onclick=()=>{ const d=+b.dataset.day; (findItem(uid).pattern.type==='weekly')?toggleDay(uid,d):setMonthDay(uid,d); });
+      card.querySelectorAll('.weeks .tg').forEach(b=> b.onclick=()=>toggleWeek(uid,+b.dataset.week));
+      card.querySelector('[data-time]').onchange=e=>setTime(uid,e.target.value);
+      card.querySelector('[data-remind]').onchange=e=>setRemind(uid,e.target.value);
+    });
+  }
+
+  const ready=state.filter(it=>hasPattern(it.pattern));
+  $('dlIcs').disabled = ready.length===0;
+}
+
+$('dlIcs').onclick=()=>{
+  const ready=state.filter(it=>hasPattern(it.pattern));
+  if(!ready.length) return;
+  download('gomi-reminder.ics', buildICS(ready));
+};
+$('clearAll').onclick=()=>{ if(state.length && confirm('設定したごみ収集日をすべて削除しますか？')){ state=[]; save(); render(); } };
+
+render();
+</script>
+</body>
+</html>

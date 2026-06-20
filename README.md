@@ -5,6 +5,9 @@
 ## ファイル
 - **index.html** … 処分ナビ（①質問で判定 ②自治体ごみルール ③メルカリ送料計算）。メインの入口。
 - **soryo-tool.html** … 送料負け判定ツール単体（③だけの集中版）。index と相互リンク。
+- **reminder.html** … ごみ収集日リマインド。自分の収集日（曜日・第N週）を入力→通知付き`.ics`を生成しスマホのカレンダーに登録。Googleカレンダー追加リンクも。設定は端末内（localStorage）保存・送信なし。
+- **manifest.json / sw.js / icon-*.png / icon.svg** … PWA関連（ホーム追加・オフライン・アイコン）。
+- **docs/reminder-design.md** … 収集日リマインドの設計メモ（Phase1=Web .ics〔実装済〕→Phase2=Capacitorネイティブ通知）。
 
 ## 使い方（非エンジニア向け）
 - `index.html` をダブルクリック → ブラウザ（Chrome等）で開く。更新は F5。
@@ -36,7 +39,8 @@
 
 ## ネイティブ化ロードマップ（将来）
 - 方針：Web→**PWA**（実装済み）→**Capacitorでストア配信**（今の単一HTML資産を再利用、フル再開発は不要）。
-- Apple審査の注意：ただのWebラッパーは「ガイドライン4.2」でリジェクトされやすい。差別化＆審査対策として「粗大ごみ収集日のローカル通知（ネイティブ通知）」の追加が有効。
+- Apple審査の注意：ただのWebラッパーは「ガイドライン4.2」でリジェクトされやすい。差別化＆審査対策として「ごみ収集日のローカル通知（ネイティブ通知）」の追加が有効。
+- 収集日リマインドは **Phase1（Web版・.icsでカレンダー登録）を実装済み**（reminder.html）。Phase2でこの入力UI/データ構造をそのまま流用し、Capacitor `@capacitor/local-notifications` でネイティブ通知化する。詳細は **docs/reminder-design.md**。
 - 費用目安：Apple Developer 年$99／Google Play 一回$25。
 
 ## 収益導線（アフィリエイト準備済み）

@@ -1,10 +1,11 @@
 /* 処分ナビ Service Worker — アプリシェルをキャッシュしオフライン動作させる。
    ファイルを更新したら CACHE のバージョン名（v1→v2…）を上げると確実に反映されます。 */
-const CACHE = 'shobun-navi-v1';
+const CACHE = 'shobun-navi-v2';
 const ASSETS = [
   './',
   './index.html',
   './soryo-tool.html',
+  './reminder.html',
   './manifest.json',
   './icon.svg',
   './icon-180.png',
