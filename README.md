@@ -21,10 +21,17 @@
 - 自治体の作り込みは「20市＋全国公式リンク」で確定（全1,741自治体はコスト大・陳腐化リスクで見送り）。
 - UX：サイズは測らず「目安プリセット」タップで入力。結果に「いちばん安い送り方」を大きく表示。質問は具体例つき・タップ領域を拡大。
 
+## 公開URL（GitHub Pages・公開済み）
+- 処分ナビ（メイン）: https://ededdeddyw.github.io/soryo-make-tool/
+- 送料負け判定ツール（単体）: https://ededdeddyw.github.io/soryo-make-tool/soryo-tool.html
+- リポジトリ: https://github.com/ededdeddyw/soryo-make-tool
+- 更新方法：ファイルを編集 → `git add -A && git commit && git push` → 数十秒でサイトへ自動反映。
+- 公開向けに各HTMLへ `meta description`／OGタグ（リンク共有時のプレビュー）／favicon／theme-color を追加済み。
+
 ## 次の候補
-- **公開**：GitHub Pages または Netlify（ファイルをドラッグするだけ）でURL化 → スマホで使う・身近な人にテスト。
 - 収益導線：ジモティー／買取／不用品回収リンク → 将来アフィリエイト。
 - 都市追加：中核市など（1市あたり約2.4万トークンの調査コスト）。
+- カスタムドメイン化や Netlify への移行（必要なら）。
 
 ---
 このREADMEは、新しいClaude Codeセッションでこのフォルダを開いたときに状況を引き継ぐためのメモです。
