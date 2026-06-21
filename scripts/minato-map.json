@@ -1,0 +1,156 @@
+[
+ {
+  "id": "s1",
+  "canon": "https://www.city.minato.tokyo.jp/documents/157490/20260123175103.pdf",
+  "districts": [
+   "六本木1丁目",
+   "六本木3丁目1～7番、15番2～21号・29号、16～18番",
+   "愛宕1・2丁目",
+   "芝公園3・4丁目",
+   "虎ノ門1～5丁目",
+   "赤坂1丁目",
+   "高輪1・2丁目",
+   "麻布台1丁目"
+  ]
+ },
+ {
+  "id": "s2",
+  "canon": "https://www.city.minato.tokyo.jp/documents/157490/20260123175142.pdf",
+  "districts": [
+   "六本木2丁目",
+   "六本木4丁目1～3番",
+   "赤坂2・6・9丁目",
+   "高輪3・4丁目"
+  ]
+ },
+ {
+  "id": "s3",
+  "canon": "https://www.city.minato.tokyo.jp/documents/157490/20260123175212.pdf",
+  "districts": [
+   "元赤坂1・2丁目",
+   "港南1～5丁目",
+   "赤坂3・4・5・7・8丁目"
+  ]
+ },
+ {
+  "id": "s4",
+  "canon": "https://www.city.minato.tokyo.jp/documents/157490/20260123175238.pdf",
+  "districts": [
+   "三田1丁目",
+   "東麻布1～3丁目",
+   "白金台1丁目",
+   "麻布十番1～4丁目",
+   "麻布台2・3丁目",
+   "麻布永坂町",
+   "麻布狸穴町"
+  ]
+ },
+ {
+  "id": "s5",
+  "canon": "https://www.city.minato.tokyo.jp/documents/157490/20260123175615.pdf",
+  "districts": [
+   "北青山1～3丁目",
+   "南青山7丁目",
+   "新橋2丁目1～5番、10～14番、18～21番",
+   "新橋3丁目1～7番、26番",
+   "新橋4丁目1～3番、9番、19番4号、22～31番",
+   "新橋5・6丁目",
+   "東新橋1・2丁目",
+   "浜松町1・2丁目",
+   "海岸1丁目",
+   "芝公園1・2丁目",
+   "芝大門1・2丁目",
+   "西麻布4丁目"
+  ]
+ },
+ {
+  "id": "s6",
+  "canon": "https://www.city.minato.tokyo.jp/documents/157490/20260123175645.pdf",
+  "districts": [
+   "南青山3～6丁目",
+   "海岸2・3丁目",
+   "芝浦4丁目"
+  ]
+ },
+ {
+  "id": "s7",
+  "canon": "https://www.city.minato.tokyo.jp/documents/157490/20260123175828.pdf",
+  "districts": [
+   "六本木7丁目1～12番、13番1号・9～11号、15～23番",
+   "南青山1・2丁目",
+   "芝1・2・5丁目",
+   "西麻布1丁目"
+  ]
+ },
+ {
+  "id": "s8",
+  "canon": "https://www.city.minato.tokyo.jp/documents/157490/20260123175858.pdf",
+  "districts": [
+   "三田2～5丁目",
+   "芝3丁目"
+  ]
+ },
+ {
+  "id": "s9",
+  "canon": "https://www.city.minato.tokyo.jp/documents/157490/20260123175935.pdf",
+  "districts": [
+   "南麻布5丁目",
+   "芝4丁目",
+   "芝浦1～3丁目",
+   "西麻布2・3丁目"
+  ]
+ },
+ {
+  "id": "s10",
+  "canon": "https://www.city.minato.tokyo.jp/documents/157490/20260123180303.pdf",
+  "districts": [
+   "六本木5丁目4～18番",
+   "六本木6丁目",
+   "新橋1丁目",
+   "白金1・3・5丁目",
+   "西新橋1～3丁目"
+  ]
+ },
+ {
+  "id": "s11",
+  "canon": "https://www.city.minato.tokyo.jp/documents/157490/20260123180335.pdf",
+  "districts": [
+   "白金2・4・6丁目",
+   "白金台2～5丁目"
+  ]
+ },
+ {
+  "id": "s12",
+  "canon": "https://www.city.minato.tokyo.jp/documents/157490/20260123180625.pdf",
+  "districts": [
+   "新橋2丁目6～9番、15～17番",
+   "新橋3丁目8～25番",
+   "新橋4丁目5～7番、10・11番、14・15番、18～21番（19番4号除く）"
+  ]
+ },
+ {
+  "id": "s13",
+  "canon": "https://www.city.minato.tokyo.jp/documents/157490/20260123181029.pdf",
+  "districts": [
+   "台場1・2丁目"
+  ]
+ },
+ {
+  "id": "s14",
+  "canon": "https://www.city.minato.tokyo.jp/documents/157490/20260123181942.pdf",
+  "districts": [
+   "元麻布1～3丁目",
+   "南麻布1～4丁目"
+  ]
+ },
+ {
+  "id": "s15",
+  "canon": "https://www.city.minato.tokyo.jp/documents/157490/20260123182427.pdf",
+  "districts": [
+   "六本木3丁目8～14番、15番22～25号",
+   "六本木4丁目4～12番",
+   "六本木5丁目1～3番",
+   "六本木7丁目13番5～8号、14番"
+  ]
+ }
+]

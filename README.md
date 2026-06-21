@@ -5,9 +5,10 @@
 ## ファイル
 - **index.html** … 処分ナビ（①質問で判定 ②自治体ごみルール ③メルカリ送料計算）。メインの入口。
 - **soryo-tool.html** … 送料負け判定ツール単体（③だけの集中版）。index と相互リンク。
-- **reminder.html** … ごみ収集日リマインド。**東京23区は区・地区（丁目）を選ぶと公式オープンデータから収集日を自動入力**（現在は品川区を内蔵、他区は順次／未対応は公式リンク誘導）。手動入力も可。通知付き`.ics`生成＋Googleカレンダー追加。設定は端末内（localStorage）保存・送信なし。
-- **data/gomi/＜区コード＞.json** … 区ごとの収集日データ（例：13109＝品川区。公式CSVから生成）。reminder.html が選択時に読み込む。
-- **scripts/build-gomi.js** … 上記JSONの生成スクリプト（公式オープンデータCSVを取得・解析）。`node scripts/build-gomi.js` で再生成。出力はコミット済みなのでサイト実行時は不要。
+- **reminder.html** … ごみ収集日リマインド。**東京23区は区・地区（丁目）を選ぶと公式データから収集日を自動入力**（現在は品川区・港区を内蔵、他区は順次／未対応は公式リンク誘導）。手動入力も可。通知付き`.ics`生成＋Googleカレンダー追加。設定は端末内（localStorage）保存・送信なし。
+- **data/gomi/＜区コード＞.json** … 区ごとの収集日データ（13109＝品川区、13103＝港区。公式データから生成）。reminder.html が選択時に読み込む。
+- **scripts/build-gomi.js** … 品川区JSONの生成（公式オープンデータCSVを取得・解析）。`node scripts/build-gomi.js` で再生成。
+- **scripts/build-gomi-minato.mjs** ＋ **lib-minato-pdf.mjs** ＋ **minato-map.json** … 港区JSONの生成。港区はCSVが無くPDFカレンダー（令和8年度版・15スケジュール）のため、pdfjsで座標解析し収集曜日を抽出。`npm i pdfjs-dist` 後に `node scripts/build-gomi-minato.mjs`。出力JSONはコミット済みでサイト実行時は不要。
 - **manifest.json / sw.js / icon-*.png / icon.svg** … PWA関連（ホーム追加・オフライン・アイコン）。
 - **docs/reminder-design.md** … 収集日リマインドの設計メモ（Phase1=Web .ics〔実装済〕→Phase2=Capacitorネイティブ通知）。
 
