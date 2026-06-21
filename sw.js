@@ -1,6 +1,9 @@
-/* 処分ナビ Service Worker — アプリシェルをキャッシュしオフライン動作させる。
-   ファイルを更新したら CACHE のバージョン名（v1→v2…）を上げると確実に反映されます。 */
-const CACHE = 'shobun-navi-v4';
+/* 処分ナビ Service Worker
+   - HTML（ページ本体）= network-first：オンラインなら常に最新を取得し、即座に更新が反映される。
+     オフライン時のみキャッシュにフォールバック。
+   - 静的アセット・データ（icon/manifest/json）= cache-first：高速・オフライン対応。
+   ※ アイコンやデータを差し替えたら CACHE のバージョン（v5→v6…）を上げて再取得させる。 */
+const CACHE = 'shobun-navi-v5';
 const ASSETS = [
   './',
   './index.html',
@@ -27,18 +30,24 @@ self.addEventListener('activate', e => {
   );
 });
 
+function cachePut(req, res) { const copy = res.clone(); caches.open(CACHE).then(c => c.put(req, copy)).catch(() => {}); return res; }
+
 self.addEventListener('fetch', e => {
   const req = e.request;
   if (req.method !== 'GET') return;
-  // 同一オリジンのみキャッシュ対象（外部リンク先はそのままネットワークへ）
-  if (new URL(req.url).origin !== self.location.origin) return;
-  e.respondWith(
-    caches.match(req).then(hit => hit || fetch(req)
-      .then(res => {
-        const copy = res.clone();
-        caches.open(CACHE).then(c => c.put(req, copy)).catch(() => {});
-        return res;
-      })
-      .catch(() => caches.match('./index.html')))
-  );
+  if (new URL(req.url).origin !== self.location.origin) return; // 外部リンクはそのまま
+  const isHTML = req.mode === 'navigate' || req.destination === 'document'
+    || (req.headers.get('accept') || '').includes('text/html');
+  if (isHTML) {
+    // network-first：最新HTMLを優先、オフライン時のみキャッシュ
+    e.respondWith(
+      fetch(req).then(res => cachePut(req, res))
+        .catch(() => caches.match(req).then(hit => hit || caches.match('./index.html')))
+    );
+  } else {
+    // cache-first：静的アセット・データ
+    e.respondWith(
+      caches.match(req).then(hit => hit || fetch(req).then(res => cachePut(req, res)).catch(() => caches.match('./index.html')))
+    );
+  }
 });

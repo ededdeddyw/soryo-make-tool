@@ -287,10 +287,11 @@ const QS = [
     {v:'large', em:'🛋️', label:'50cm以上（大きい）', hint:'いす・本棚・布団・大型家電など'},
   ]},
   {id:'price', q:'売れそうな値段は？（相場）', icon:'💴', skip:s=>s.cond==='broken', opts:[
-    {v:'low',     em:'🪙', label:'〜500円くらい', hint:'送料負けしやすい'},
-    {v:'mid',     em:'💵', label:'500〜2,000円', hint:'メルカリ向きの価格帯'},
-    {v:'high',    em:'💎', label:'2,000円以上・ブランド/人気', hint:'高く売れそう'},
-    {v:'unknown', em:'❓', label:'わからない', hint:'まず相場を調べたい'},
+    {v:'high',        em:'💎', label:'高い（2,000円〜・ブランド/人気）', hint:'高く売れそう'},
+    {v:'mid',         em:'💵', label:'そこそこ（500〜2,000円）', hint:'メルカリ向きの価格帯'},
+    {v:'low',         em:'🪙', label:'安い（〜500円くらい）', hint:'送料負けしやすい'},
+    {v:'unsure_high', em:'❓', label:'わからない（でも高そう）', hint:'ブランド・家電・きれいめ'},
+    {v:'unsure_low',  em:'🔍', label:'わからない（たぶん高くない）', hint:'ノーブランド・量産品'},
   ]},
   {id:'urgent', q:'どれくらい急ぎ？', icon:'⏱️', skip:s=>s.cond==='broken', opts:[
     {v:'yes', em:'🏃', label:'すぐ手放したい', hint:'引っ越し・片付け中など'},
@@ -371,9 +372,10 @@ function recommend(s){
     if(large&&!carry) add('kaitori',1,'動く大型家電なら出張買取の可能性も');
   } else {
     // 価値の評価
-    if(s.price==='high'){
-      add('kaitori',5,'高く売れそう→ブランド/家電は買取が早くて確実');
-      add('mercari', bulky?3:6, bulky?'高値だが大型は梱包・送料が重い':'高値が狙え、送料を引いても利益が出やすい');
+    if(s.price==='high' || s.price==='unsure_high'){
+      // 高い／わからないけど高そう → 価値を確定して高く売る（査定 or 相場）。ジモティーは案内しない
+      add('kaitori',5, s.price==='high' ? '高く売れそう→ブランド/家電は買取が早くて確実' : '高そうなら、まず査定で価値を確定（ブランド/家電は買取が確実）');
+      add('mercari', bulky?4:6,'高く売れる可能性→メルカリで相場を見て高値を狙う');
     } else if(s.price==='mid'){
       add('mercari', bulky?2:6,'相場的にメルカリ向き（小物は手残りが出やすい）');
       add('jmty', bulky?5:3,'手渡しなら送料0。大型でもそのまま渡せる');
@@ -381,10 +383,10 @@ function recommend(s){
       add('jmty',5,'送料を引くと赤字になりやすい→手渡しで0〜数百円');
       add('matome', bulky?1:4,'単体では送料負け→似た物をまとめて1梱包で');
       add('mercari', bulky?0:2,'出すなら送料負けに注意（計算で確認）');
-    } else { // unknown
-      add('mercari',4,'まず相場を検索→状態が良ければ自分で売るのが値段的に有利');
-      add('jmty',2,'値がつきにくければ手渡しで譲る選択も');
-      add('kaitori',2,'ブランド/家電なら買取査定でだいたいの価値がわかる');
+    } else { // unsure_low（わからない＝たぶん高くない）→ まずメルカリ/査定で価値を確かめる。ジモティーは案内しない
+      add('mercari', bulky?3:5,'まずメルカリに出して相場を見る（売れれば値段もわかる）');
+      add('matome', bulky?1:3,'安いと分かったら、似た物とまとめて送料を分ける手も');
+      add('kaitori',1,'念のため査定すれば、おおよその価値がわかる');
     }
     // 良品・急がないは「自分で売って高く」の価値が高い（ただし安すぎる物は送料負けするので除外）
     if(s.price!=='low'){
@@ -488,7 +490,7 @@ function renderResult(){
 function gotoCalc(){
   // ウィザードの回答から計算機をざっくり初期化
   const sizeMap={small:[22,16,3,300], mid:[40,30,12,1500], large:[70,45,35,6000]};
-  const priceMap={low:600, mid:1500, high:3500, unknown:1500};
+  const priceMap={low:600, mid:1500, high:3500, unsure_high:3000, unsure_low:1000};
   const sz=sizeMap[answers.size];
   if(sz){ $('d1').value=sz[0]; $('d2').value=sz[1]; $('d3').value=sz[2]; $('weight').value=sz[3]; }
   if(answers.price && priceMap[answers.price]) $('price').value=priceMap[answers.price];
