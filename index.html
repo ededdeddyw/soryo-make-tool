@@ -224,12 +224,13 @@
         <div class="unit"><input type="number" id="price" value="1500" min="0" step="50"><span class="u">円</span></div>
         <label>サイズの目安から選ぶ <span class="hint">測らなくてOK・近いものをタップ</span></label>
         <div class="presets" id="presets"></div>
-        <label>サイズを直接入れる <span class="hint">長さ・幅・厚さ（cm）</span></label>
+        <label>サイズを直接入れる <span class="hint">長さ・幅・厚さ（cm）／3辺合計は自動計算</span></label>
         <div class="row3">
-          <div class="unit"><input type="number" id="d1" value="25" min="0" step="1"><span class="u">cm</span></div>
-          <div class="unit"><input type="number" id="d2" value="18" min="0" step="1"><span class="u">cm</span></div>
-          <div class="unit"><input type="number" id="d3" value="3" min="0" step="0.5"><span class="u">cm</span></div>
+          <div class="unit"><input type="number" id="d1" value="25" min="0" step="1" aria-label="長さ"><span class="u">cm</span></div>
+          <div class="unit"><input type="number" id="d2" value="18" min="0" step="1" aria-label="幅"><span class="u">cm</span></div>
+          <div class="unit"><input type="number" id="d3" value="3" min="0" step="0.5" aria-label="厚さ"><span class="u">cm</span></div>
         </div>
+        <div class="hint" style="margin-top:4px">安い方法は<b>「厚さ」</b>と<b>「3辺合計」</b>の2つで決まります。とくにネコポス等は<b>厚さ3cm以下</b>。正方形・箱型は厚さで弾かれやすいので注意。</div>
         <label>重さ</label>
         <div class="unit"><input type="number" id="weight" value="300" min="0" step="50"><span class="u">g</span></div>
         <details class="adv">
@@ -280,7 +281,7 @@ const QS = [
     {v:'old',   em:'🧷', label:'使えるが古い・難あり', hint:'動く/使えるが傷・汚れ・型落ち'},
     {v:'broken',em:'🩹', label:'壊れている・価値なし', hint:'故障・破損・欠品・かなり汚い'},
   ]},
-  {id:'size', q:'いちばん長いところは、どれくらい？', icon:'📏', opts:[
+  {id:'size', q:'いちばん長い辺は、どれくらい？', icon:'📏', note:'※「いちばん長い1辺」の長さです（3辺の合計ではありません）。送料はあとで厚さ・3辺合計も見て計算します。', opts:[
     {v:'small', em:'📩', label:'手のひら〜30cm未満', hint:'本・服・小型雑貨・化粧品など'},
     {v:'mid',   em:'📦', label:'30〜50cmくらい', hint:'電子レンジ・炊飯器・スツールなど'},
     {v:'large', em:'🛋️', label:'50cm以上（大きい）', hint:'いす・本棚・布団・大型家電など'},
@@ -343,6 +344,7 @@ function renderWizard(){
     <div class="wz-progress">${dots}</div>
     <p class="wz-q">${q.icon} ${q.q}</p>
     <p class="wz-step">質問 ${step+1} / ${list.length}</p>
+    ${q.note?`<p class="wz-step" style="margin:-8px 0 12px;color:var(--accent)">${q.note}</p>`:''}
     <div class="wz-opts">${opts}</div>
     <div class="wz-bar">
       <button class="btn ghost" id="wzBack" ${step===0?'disabled style="visibility:hidden"':''}>← もどる</button>
@@ -743,6 +745,31 @@ function checkLimits(d,w,L){
   return null;
 }
 function checkBoxes(d,boxes){ return boxes.some(b=> !checkLimits(d,0,b)) ? null : '専用BOXに入らない'; }
+// 各規格に対する超過項目（厚さ・長辺・3辺合計など）を列挙
+function violations(d,w,L){
+  const v=[];
+  if(L.long && d.longest>L.long) v.push({k:'long',over:d.longest-L.long,lim:L.long});
+  if(L.mid && d.mid>L.mid)       v.push({k:'mid',over:d.mid-L.mid,lim:L.mid});
+  if(L.thick && d.thick>L.thick) v.push({k:'thick',over:d.thick-L.thick,lim:L.thick});
+  if(L.sum && d.sum>L.sum)       v.push({k:'sum',over:d.sum-L.sum,lim:L.sum});
+  if(L.w && w>L.w)               v.push({k:'w',over:w-L.w,lim:L.w});
+  return v;
+}
+// 「厚さだけ」がネックで使えていない安い方法を探す（正方形・箱型が厚さで弾かれる対策）
+function thicknessTip(d,w,best){
+  let tip=null;
+  for(const m of SMALL){
+    if(m.boxes) continue;                         // 専用BOX系は除外
+    const cost=m.ship+m.mat;
+    if(best && cost>=best.cost) continue;          // 今の最安より高ければ得しない
+    const vio=violations(d,w,m.limits);
+    if(vio.length===1 && vio[0].k==='thick'){       // ネックが厚さ1点のみ
+      const cand={name:m.name,cost,lim:vio[0].lim,over:vio[0].over,save:best?best.cost-cost:0};
+      if(!tip || cand.cost<tip.cost) tip=cand;
+    }
+  }
+  return tip;
+}
 function eligibleMethods(d,w){
   const list=[];
   for(const m of SMALL){
@@ -762,11 +789,20 @@ function calc(){
   const d=buildDims(), w=+$('weight').value||0;
   const methods=eligibleMethods(d,w), ok=methods.filter(m=>m.ok);
   const best=ok.length?ok.reduce((a,b)=> b.cost<a.cost?b:a):null;
-  renderCalc({price,material,laborMin,wage,bundle,best}); renderCompare(methods,best);
+  const tip=thicknessTip(d,w,best);
+  renderCalc({price,material,laborMin,wage,bundle,best,tip}); renderCompare(methods,best);
+}
+function tipHtml(o){
+  if(!o.tip) return '';
+  return `<div style="display:flex;gap:9px;align-items:flex-start;font-size:.84rem;background:var(--blue-bg);border:1px solid #bcd6ef;border-radius:10px;padding:10px 12px;margin:10px 0 6px">
+    <span style="font-size:1.15rem;line-height:1.2">💡</span>
+    <span><b>厚さ</b>をあと <b>${o.tip.over.toFixed(1)}cm</b> 薄く（${o.tip.lim}cm以下）にできれば <b>${o.tip.name}</b>（${yen(o.tip.cost)}）${o.best?`が使えて、今の最安より <b>${yen(o.tip.save)}</b> お得。`:'で送れます（今は規格外で送れません）。'}<br>
+    <span style="color:var(--muted);font-size:.76rem">正方形・箱型は「厚さ」で安い方法に入らないことが多いです。平たく梱包すると解決できることも。</span></span>
+  </div>`;
 }
 function renderCalc(o){
   const v=$('verdict'),nb=$('netBig'),ns=$('netSub'),bd=$('breakdown'),na=$('nextActions'),sp=$('shipPick');
-  if(!o.best){ sp.className=''; sp.innerHTML=''; v.innerHTML=card('v-bad',iconAlert(),'発送方法が見つかりません','標準的なメルカリ便の規格を超えています。サイズを見直すか公式でご確認ください。'); nb.textContent='—'; ns.textContent=''; bd.innerHTML=''; na.innerHTML=''; return; }
+  if(!o.best){ sp.className=''; sp.innerHTML=''; v.innerHTML=card('v-bad',iconAlert(),'発送方法が見つかりません','標準的なメルカリ便の規格を超えています。サイズを見直すか公式でご確認ください。'); nb.textContent='—'; ns.textContent=''; bd.innerHTML=''; na.innerHTML=tipHtml(o); return; }
   sp.className='ship-pick';
   sp.innerHTML=`<span class="pe">📮</span><div><div class="pl">いちばん安い送り方</div><div class="pn">${o.best.name}</div></div><div class="pc"><div class="pl">送料＋資材</div><b>${yen(o.best.cost)}</b></div>`;
   const fee=Math.floor(o.price*FEE_RATE), ship=o.best.cost/o.bundle, net=o.price-fee-ship-o.material;
@@ -791,7 +827,7 @@ function renderCalc(o){
   if(net<0) acts=[`黒字には <b>${yen(breakEven)} 以上</b>で売る必要があります（この発送方法の場合）。`,`売れないなら <b>まとめ売り</b>で送料按分、または <b>ジモティー/買取/処分</b>を検討。`,`梱包を薄くして安い発送方法に収められないか確認。`];
   else if(net<LOW_PROFIT||realNet<0) acts=[`<b>まとめ売り</b>で送料を按分すると手残りが伸びます（同梱点数を上げて再計算）。`,`手残り ${yen(LOW_PROFIT)} を確保する売価の目安は <b>${yen(targetPrice)}</b>。`,`急がないなら相場が上がるまで保留も手。`];
   else acts=[`そのまま <b>${o.best.name}</b> で出品OK。送料負けの心配はありません。`,`損益分岐は <b>${yen(breakEven)}</b>。これを下回る値下げは赤字ラインです。`];
-  na.innerHTML='<div class="net-cap" style="font-weight:700;margin:10px 0 4px">次の一手</div>'+acts.map((a,i)=>`<div class="a"><span class="n">${i+1}</span><span>${a}</span></div>`).join('');
+  na.innerHTML=tipHtml(o)+'<div class="net-cap" style="font-weight:700;margin:10px 0 4px">次の一手</div>'+acts.map((a,i)=>`<div class="a"><span class="n">${i+1}</span><span>${a}</span></div>`).join('');
 }
 function renderCompare(methods,best){
   const price=+$('price').value||0, fee=Math.floor(price*FEE_RATE), material=+$('material').value||0, bundle=Math.max(1,+$('bundle').value||1);
