@@ -1,6 +1,6 @@
 /* 処分ナビ Service Worker — アプリシェルをキャッシュしオフライン動作させる。
    ファイルを更新したら CACHE のバージョン名（v1→v2…）を上げると確実に反映されます。 */
-const CACHE = 'shobun-navi-v2';
+const CACHE = 'shobun-navi-v3';
 const ASSETS = [
   './',
   './index.html',
@@ -11,6 +11,7 @@ const ASSETS = [
   './icon-180.png',
   './icon-192.png',
   './icon-512.png',
+  './data/gomi/13109.json',
 ];
 
 self.addEventListener('install', e => {
