@@ -382,16 +382,21 @@ function recommend(s){
       add('matome', bulky?1:4,'単体では送料負け→似た物をまとめて1梱包で');
       add('mercari', bulky?0:2,'出すなら送料負けに注意（計算で確認）');
     } else { // unknown
-      add('mercari',3,'まず相場を検索して値付けを確認');
+      add('mercari',4,'まず相場を検索→状態が良ければ自分で売るのが値段的に有利');
       add('jmty',2,'値がつきにくければ手渡しで譲る選択も');
       add('kaitori',2,'ブランド/家電なら買取査定でだいたいの価値がわかる');
+    }
+    // 良品・急がないは「自分で売って高く」の価値が高い（ただし安すぎる物は送料負けするので除外）
+    if(s.price!=='low'){
+      if(s.cond==='good') add('mercari',2,'状態が良い→きれいな写真で高く売れやすい');
+      if(s.urgent==='no') add('mercari',2,'急がない→売れるまで待てて高値を狙える');
     }
     // 大きさの影響
     if(bulky){
       add('jmty',2,'大型は送料が高く、手渡し(ジモティー)が有利');
       add('kaitori', large?2:1,'大型は出張買取という手も');
       add('recycle_shop', carry?2:0,'運べるならリサイクルショップ持込で即現金');
-      add('mercari',-2);
+      add('mercari',-1,'大型は送料が高め（ただし梱包・発送たのメル便で集荷・梱包は代行可）');
     } else {
       add('mercari',2);
       add('recycle_shop', carry?1:0);
@@ -410,6 +415,7 @@ function recommend(s){
     add('kaitori', large?2:0,'運べないなら出張買取');
     add('gyosha',2,'運べないなら自宅まで回収に来てもらう');
     add('jmty',1,'「取りに来てくれる」引取希望者を選べる');
+    if(s.cond!=='broken' && s.price!=='low') add('mercari',1,'運べなくても梱包・発送たのメル便でヤマトが集荷・梱包・発送を代行');
   }
 
   const ranked = Object.keys(CH).map(k=>({k, s:sc[k], why:[...new Set(why[k])]}))
