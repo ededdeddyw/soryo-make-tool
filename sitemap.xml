@@ -15,4 +15,8 @@
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
+  <url><loc>https://ededdeddyw.github.io/soryo-make-tool/guide/</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://ededdeddyw.github.io/soryo-make-tool/guide/mercari-soryo-make.html</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://ededdeddyw.github.io/soryo-make-tool/guide/nekoposu-atsusa.html</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://ededdeddyw.github.io/soryo-make-tool/guide/sodai-gomi-kijun.html</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
 </urlset>

@@ -12,3 +12,24 @@
 body{margin:0;font-family:"Hiragino Sans","Yu Gothic UI","Segoe UI",system-ui,sans-serif;
   background:var(--bg);color:var(--ink);line-height:1.6;-webkit-font-smoothing:antialiased}
 a{color:var(--accent)}
+
+/* ガイド記事（guide/*.html）共通スタイル */
+.article{max-width:720px;margin:0 auto;padding:18px 16px 72px}
+.gnav{display:flex;gap:8px;flex-wrap:wrap;align-items:center;font-size:.84rem;margin:6px 0 14px}
+.gnav a{font-weight:700;text-decoration:none;background:#fff;border:1px solid var(--line);border-radius:999px;padding:6px 13px;box-shadow:var(--shadow)}
+.article h1{font-size:1.5rem;line-height:1.35;margin:6px 0 6px}
+.article .meta{font-size:.78rem;color:var(--muted);margin:0 0 18px}
+.article h2{font-size:1.12rem;margin:24px 0 8px;padding-top:6px;border-top:1px solid var(--line)}
+.article h3{font-size:1rem;margin:16px 0 6px}
+.article p,.article li{font-size:.95rem;line-height:1.85}
+.article ul,.article ol{padding-left:1.3em;margin:8px 0}
+.article li{margin:4px 0}
+.article .lead{font-size:1rem;color:var(--ink);background:var(--accent-soft);border:1px solid var(--line);border-radius:12px;padding:13px 15px;margin:0 0 18px}
+.article .cta{display:block;text-align:center;font-weight:700;text-decoration:none;background:var(--accent);color:#fff;border-radius:12px;padding:14px 18px;margin:18px 0;box-shadow:var(--shadow)}
+.article .cta.sub{background:#fff;color:var(--accent);border:1px solid var(--accent)}
+.article table.g{width:100%;border-collapse:collapse;font-size:.9rem;margin:10px 0}
+.article table.g th,.article table.g td{border:1px solid var(--line);padding:8px 10px;text-align:left}
+.article table.g th{background:#fafbfa;font-size:.82rem;color:var(--muted)}
+.article .note{font-size:.82rem;color:var(--muted);background:#fff;border:1px dashed var(--line);border-radius:10px;padding:11px 13px;margin:14px 0}
+.article .rel{margin-top:24px;border-top:1px solid var(--line);padding-top:12px}
+.article .rel a{display:inline-block;margin:4px 8px 4px 0}

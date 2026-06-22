@@ -201,7 +201,8 @@
     <button class="tab active" data-view="navi">① これ、どうする？</button>
     <button class="tab" data-view="gov">② ごみの出し方</button>
     <button class="tab" data-view="calc">③ 売却利益を計算</button>
-    <a href="reminder.html" style="margin-left:auto">🔔 収集日リマインド ↗</a>
+    <a href="guide/" style="margin-left:auto">📚 ガイド ↗</a>
+    <a href="reminder.html">🔔 収集日リマインド ↗</a>
   </nav>
 
   <!-- ① 処分ナビ（アキネーター式） -->
@@ -1009,7 +1010,8 @@ buildPresets();
 restoreCalc();
 calc();
 renderGov();
-showView('navi');
+const _h=(location.hash||'').replace('#','');   // 記事等から #calc / #gov で該当タブを開ける
+showView(['navi','gov','calc'].includes(_h)?_h:'navi');
 </script>
 </body>
 </html>
