@@ -9,6 +9,11 @@
 <meta property="og:type" content="website">
 <meta property="og:title" content="処分ナビ｜売る・譲る・捨てるを質問で判定">
 <meta property="og:description" content="メルカリ送料負け計算＋自治体ごみルール。質問に答えるだけで、今のあなたに合った手放し方を提案します。">
+<meta property="og:url" content="https://ededdeddyw.github.io/soryo-make-tool/">
+<meta property="og:image" content="https://ededdeddyw.github.io/soryo-make-tool/icon-512.png">
+<meta name="twitter:card" content="summary">
+<link rel="canonical" href="https://ededdeddyw.github.io/soryo-make-tool/">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"処分ナビ","url":"https://ededdeddyw.github.io/soryo-make-tool/","applicationCategory":"UtilitiesApplication","operatingSystem":"Web","description":"フリマ出品前に送料負けを判定し、売る・譲る・捨てるを質問で案内。メルカリ送料計算＋東京23区・政令市20市のごみルール。","offers":{"@type":"Offer","price":"0","priceCurrency":"JPY"}}</script>
 <link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2024%2024'%20fill='none'%20stroke='%232e6b3e'%20stroke-width='2'%20stroke-linecap='round'%20stroke-linejoin='round'%3E%3Cpath%20d='M21%2016V8a2%202%200%200%200-1-1.73l-7-4a2%202%200%200%200-2%200l-7%204A2%202%200%200%200%203%208v8a2%202%200%200%200%201%201.73l7%204a2%202%200%200%200%202%200l7-4A2%202%200%200%200%2021%2016z'/%3E%3Cpath%20d='M3.27%206.96%2012%2012.01l8.73-5.05M12%2022.08V12'/%3E%3C/svg%3E">
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icon-180.png">
@@ -736,6 +741,10 @@ function buildPref(){
       if(w){ sel.value='東京都'; sel.onchange(); $('city').value=w; } } }catch(e){}
 }
 
+// 粗大ごみ時の高単価導線（出張買取・不用品回収。linkForでアフィリ差し替え可）
+function govLeadHtml(){
+  return `<div style="margin-top:10px;font-size:.82rem;background:var(--blue-bg);border:1px solid #bcd6ef;border-radius:10px;padding:9px 12px">💡 まだ使える物なら <a href="${linkFor('kaitori','出張買取 比較')}" target="_blank" rel="noopener">出張買取</a>、処分なら <a href="${linkFor('gyosha','不用品回収 見積もり 比較')}" target="_blank" rel="noopener">不用品回収の見積もり</a> も（運べない大型に便利）。</div>`;
+}
 function renderSizeBtns(){
   $('govSize').innerHTML=GOV_SIZES.map(s=>`<button data-s="${s.v}" class="${govSize===s.v?'on':''}">${s.label}</button>`).join('');
   $('govSize').querySelectorAll('button').forEach(b=> b.onclick=()=>{ govSize=b.dataset.s; govMat=null; renderGov(); });
@@ -749,11 +758,11 @@ function renderGov(){
   const v=sodaiVerdict(govSize, region.sodaiCm);
   const more='<button class="btn" id="govMoreBtn">もっと詳しく（素材から分別・収集日）→</button>';
   if(v==='sodai'){
-    vbox.innerHTML=`<div class="g-verdict g-sodai"><p class="vh">🛋️ 粗大ごみの可能性が高いよ</p><p class="vb">${region.name}は「${region.sodaiCm?region.sodaiCm+'cm以上':'大きいもの'}」が粗大ごみ。<b>申込制・有料</b>です。</p><div style="margin-top:10px"><button class="btn primary" id="govSodaiBtn">申込・手数料の詳しい情報を見る →</button></div></div>`;
+    vbox.innerHTML=`<div class="g-verdict g-sodai"><p class="vh">🛋️ 粗大ごみの可能性が高いよ</p><p class="vb">${region.name}は「${region.sodaiCm?region.sodaiCm+'cm以上':'大きいもの'}」が粗大ごみ。<b>申込制・有料</b>です。</p><div style="margin-top:10px"><button class="btn primary" id="govSodaiBtn">申込・手数料の詳しい情報を見る →</button></div>${govLeadHtml()}</div>`;
   } else if(v==='not_sodai'){
     vbox.innerHTML=`<div class="g-verdict g-ok"><p class="vh">✅ 粗大ごみではないよ</p><p class="vb">${region.name}の基準（${region.sodaiCm}cm以上が粗大）より小さいので、<b>ふつうのごみ（無料）</b>として出せます。もっと詳しく知りたい？</p><div style="margin-top:10px">${more}</div></div>`;
   } else if(v==='ambiguous'){
-    vbox.innerHTML=`<div class="g-verdict g-ask"><p class="vh">🤔 境界の大きさだよ</p><p class="vb">${region.name}は<b>${region.sodaiCm}cm以上が粗大ごみ</b>（有料・申込）、未満は通常ごみ。現物のいちばん長い辺で判断してね。</p><div style="margin-top:10px"><button class="btn primary" id="govSodaiBtn">粗大として申込・手数料を見る</button> ${more}</div></div>`;
+    vbox.innerHTML=`<div class="g-verdict g-ask"><p class="vh">🤔 境界の大きさだよ</p><p class="vb">${region.name}は<b>${region.sodaiCm}cm以上が粗大ごみ</b>（有料・申込）、未満は通常ごみ。現物のいちばん長い辺で判断してね。</p><div style="margin-top:10px"><button class="btn primary" id="govSodaiBtn">粗大として申込・手数料を見る</button> ${more}</div>${govLeadHtml()}</div>`;
   } else if(v==='region_unknown'){
     vbox.innerHTML=`<div class="g-verdict g-ask"><p class="vh">📦 ${region.name}は「袋に入るか」等で決まるみたい</p><p class="vb">大きさ(cm)では断定できません。指定袋に入らない大きさなら粗大ごみ（申込・有料）が一般的。素材から分別を見るか、公式で確認してね。</p><div style="margin-top:10px"><button class="btn" id="govSodaiBtn">粗大ごみ（申込・手数料）を見る</button> ${more}</div></div>`;
   } else {
@@ -916,6 +925,24 @@ function calc(){
   const tip=thicknessTip(d,w,best);
   renderCalc({price,material,laborMin,wage,bundle,best,tip}); renderCompare(methods,best);
 }
+/* 梱包資材の購入導線（収益化ポイント）
+   Amazonアソシエイト等のタグを AFFILIATE.amazonTag に入れると、全資材リンクに付与されます。 */
+const AFFILIATE = { amazonTag:'' };
+function amazonSearch(q){ const u='https://www.amazon.co.jp/s?k='+encodeURIComponent(q); return AFFILIATE.amazonTag ? u+'&tag='+encodeURIComponent(AFFILIATE.amazonTag) : u; }
+function materialLink(best){
+  const map=[['宅急便コンパクト','宅急便コンパクト 専用box'],['ゆうパケットプラス','ゆうパケットプラス 専用箱'],
+    ['ゆうパケットポストmini','ゆうパケットポストmini 専用封筒'],['ゆうパケットポスト','ゆうパケットポスト 発送用シール'],
+    ['宅急便','ダンボール 箱 宅配'],['ゆうパック','ダンボール 箱 宅配']];
+  const hit=map.find(([n])=> best.name.includes(n));
+  const q = hit ? hit[1] : '梱包資材 プチプチ 封筒';
+  const label = hit ? hit[1].replace(/ 専用box| 専用箱| 専用封筒| 発送用シール| 箱 宅配/,'').trim() : '梱包資材（プチプチ・封筒）';
+  return { label, href:amazonSearch(q) };
+}
+function matHtml(best){
+  if(!best) return '';
+  const m=materialLink(best);
+  return `<div style="display:flex;gap:9px;align-items:center;font-size:.84rem;background:#fff;border:1px solid var(--line);border-radius:10px;padding:9px 12px;margin:10px 0 4px"><span style="font-size:1.1rem">🛒</span><span><b>${m.label}</b> を準備：<a href="${m.href}" target="_blank" rel="noopener">Amazonで探す ↗</a></span></div>`;
+}
 function tipHtml(o){
   if(!o.tip) return '';
   return `<div style="display:flex;gap:9px;align-items:flex-start;font-size:.84rem;background:var(--blue-bg);border:1px solid #bcd6ef;border-radius:10px;padding:10px 12px;margin:10px 0 6px">
@@ -951,7 +978,7 @@ function renderCalc(o){
   if(net<0) acts=[`黒字には <b>${yen(breakEven)} 以上</b>で売る必要があります（この発送方法の場合）。`,`売れないなら <b>まとめ売り</b>で送料按分、または <b>ジモティー/買取/処分</b>を検討。`,`梱包を薄くして安い発送方法に収められないか確認。`];
   else if(net<LOW_PROFIT||realNet<0) acts=[`<b>まとめ売り</b>で送料を按分すると手残りが伸びます（同梱点数を上げて再計算）。`,`手残り ${yen(LOW_PROFIT)} を確保する売価の目安は <b>${yen(targetPrice)}</b>。`,`急がないなら相場が上がるまで保留も手。`];
   else acts=[`そのまま <b>${o.best.name}</b> で出品OK。送料負けの心配はありません。`,`損益分岐は <b>${yen(breakEven)}</b>。これを下回る値下げは赤字ラインです。`];
-  na.innerHTML=tipHtml(o)+'<div class="net-cap" style="font-weight:700;margin:10px 0 4px">次の一手</div>'+acts.map((a,i)=>`<div class="a"><span class="n">${i+1}</span><span>${a}</span></div>`).join('');
+  na.innerHTML=tipHtml(o)+matHtml(o.best)+'<div class="net-cap" style="font-weight:700;margin:10px 0 4px">次の一手</div>'+acts.map((a,i)=>`<div class="a"><span class="n">${i+1}</span><span>${a}</span></div>`).join('');
 }
 function renderCompare(methods,best){
   const price=+$('price').value||0, fee=Math.floor(price*FEE_RATE), material=+$('material').value||0, bundle=Math.max(1,+$('bundle').value||1);
