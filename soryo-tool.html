@@ -19,12 +19,12 @@
 <script>if('serviceWorker' in navigator){addEventListener('load',function(){navigator.serviceWorker.register('sw.js').catch(function(){});});}</script>
 <style>
   :root{
-    --bg:#f4f7f5; --card:#ffffff; --ink:#1f2a24; --muted:#6b7a72;
-    --line:#e2e9e4; --accent:#2e6b3e; --accent-soft:#e7f1ea;
-    --ok:#2e8b57; --ok-bg:#e6f4ec;
-    --warn:#b7791f; --warn-bg:#fbf2df;
-    --bad:#c0392b; --bad-bg:#fbe9e7;
-    --radius:14px; --shadow:0 2px 10px rgba(31,42,36,.06);
+    /* ベース＝ニュートラルグレー、緑(--accent)はブランドのアクセント。3ファイル共通パレット */
+    --bg:#f3f4f6; --card:#ffffff; --ink:#1f2328; --muted:#6b7280;
+    --line:#e5e7eb; --accent:#2e6b3e; --accent-soft:#eef3f0;
+    --ok:#2e8b57; --ok-bg:#eaf5ef; --warn:#b7791f; --warn-bg:#fbf3e2;
+    --bad:#c0392b; --bad-bg:#fbece9; --blue:#2b6cb0; --blue-bg:#eaf1fa;
+    --radius:14px; --shadow:0 2px 10px rgba(17,24,39,.06);
   }
   *{box-sizing:border-box}
   body{margin:0;font-family:"Hiragino Sans","Yu Gothic UI","Segoe UI",system-ui,sans-serif;
