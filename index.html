@@ -170,16 +170,16 @@
     </div>
     <div>
       <h1>処分ナビ</h1>
-      <p class="sub">「売る・譲る・捨てる」を質問で判定 ＋ メルカリ送料負け計算 ＋ 自治体ごみルール</p>
+      <p class="sub">「売る・譲る・捨てる」を質問で判定 ＋ メルカリの売却利益を計算 ＋ 自治体ごみルール</p>
     </div>
   </header>
 
   <nav class="tabs">
     <a href="#nav-navi">① 処分ナビ</a>
     <a href="#nav-gov">② 自治体のごみルール</a>
-    <a href="#nav-calc">③ メルカリ送料計算</a>
+    <a href="#nav-calc">③ 売却利益を計算</a>
     <a href="reminder.html" style="margin-left:auto">🔔 収集日リマインド ↗</a>
-    <a href="soryo-tool.html">📦 送料負け判定 ↗</a>
+    <a href="soryo-tool.html">📦 売却利益チェック ↗</a>
   </nav>
 
   <!-- ① 処分ナビ（アキネーター式） -->
@@ -216,7 +216,7 @@
 
   <!-- ③ メルカリ送料計算 -->
   <section class="card" id="nav-calc">
-    <h2>③ メルカリ送料負け計算</h2>
+    <h2>③ メルカリ 売却利益の計算<span class="hint" style="font-weight:400">（売って手元にいくら残る？）</span></h2>
     <p class="lead">売価・サイズ・重さから、手数料・送料・梱包材を引いた「手残り」を計算し、最安の発送方法を自動で選びます。</p>
     <div class="grid">
       <div>
@@ -432,7 +432,7 @@ function recommend(s){
 
 function ctaFor(k){
   switch(k){
-    case 'mercari': return {label:'送料負け計算で手残りを確認 →', act:'calc'};
+    case 'mercari': return {label:'売却利益（手残り）を計算する →', act:'calc'};
     case 'matome':  return {label:'まとめ売り前提で計算する →', act:'calc'};
     case 'sodai':   return {label:'自治体の粗大ごみルールを見る ↓', act:'gov'};
     case 'ippan':   return {label:'自治体の分別ルールを見る ↓', act:'gov'};

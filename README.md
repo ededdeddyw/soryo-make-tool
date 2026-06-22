@@ -1,10 +1,10 @@
-# 送料負け判定ツール / 処分ナビ（MVP）
+# 処分ナビ / メルカリ売却利益 計算（旧「送料負け判定」）（MVP）
 
 フリマ出品前に「売る価値があるか（送料負けしないか）」を判定し、さらに「売る・譲る・捨てる」をアキネーター式の質問で案内するローカルWebツール。メルカリ送料計算＋自治体ごみルール付き。単一HTML・ビルド不要・オフライン可・データ送信なし。
 
 ## ファイル
 - **index.html** … 処分ナビ（①質問で判定 ②自治体ごみルール ③メルカリ送料計算）。メインの入口。
-- **soryo-tool.html** … 送料負け判定ツール単体（③だけの集中版）。index と相互リンク。
+- **soryo-tool.html** … メルカリ売却利益 計算ツール単体（③だけの集中版・旧「送料負け判定ツール」）。index と相互リンク。
 - **reminder.html** … ごみ収集日リマインド。**東京23区は区・地区（丁目）を選ぶと公式データから収集日を自動入力**（現在は品川区・港区を内蔵、他区は順次／未対応は公式リンク誘導）。手動入力も可。通知付き`.ics`生成＋Googleカレンダー追加。設定は端末内（localStorage）保存・送信なし。
 - **data/gomi/＜区コード＞.json** … 区ごとの収集日データ（13109＝品川区、13103＝港区。公式データから生成）。reminder.html が選択時に読み込む。
 - **scripts/build-gomi.js** … 品川区JSONの生成（公式オープンデータCSVを取得・解析）。`node scripts/build-gomi.js` で再生成。
@@ -30,7 +30,7 @@
 
 ## 公開URL（GitHub Pages・公開済み）
 - 処分ナビ（メイン）: https://ededdeddyw.github.io/soryo-make-tool/
-- 送料負け判定ツール（単体）: https://ededdeddyw.github.io/soryo-make-tool/soryo-tool.html
+- メルカリ売却利益 計算ツール（単体）: https://ededdeddyw.github.io/soryo-make-tool/soryo-tool.html
 - リポジトリ: https://github.com/ededdeddyw/soryo-make-tool
 - 更新方法：ファイルを編集 → `git add -A && git commit && git push` → 数十秒でサイトへ自動反映。
 - 公開向けに各HTMLへ `meta description`／OGタグ（リンク共有時のプレビュー）／favicon／theme-color を追加済み。
