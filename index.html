@@ -17,18 +17,9 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="処分ナビ">
 <script>if('serviceWorker' in navigator){addEventListener('load',function(){navigator.serviceWorker.register('sw.js').catch(function(){});});}</script>
+<link rel="stylesheet" href="theme.css">
 <style>
-  :root{
-    /* ベース＝ニュートラルグレー、緑(--accent)はブランドのアクセント。3ファイル共通パレット */
-    --bg:#f3f4f6; --card:#ffffff; --ink:#1f2328; --muted:#6b7280;
-    --line:#e5e7eb; --accent:#2e6b3e; --accent-soft:#eef3f0;
-    --ok:#2e8b57; --ok-bg:#eaf5ef; --warn:#b7791f; --warn-bg:#fbf3e2;
-    --bad:#c0392b; --bad-bg:#fbece9; --blue:#2b6cb0; --blue-bg:#eaf1fa;
-    --radius:14px; --shadow:0 2px 10px rgba(17,24,39,.06);
-  }
-  *{box-sizing:border-box}
-  body{margin:0;font-family:"Hiragino Sans","Yu Gothic UI","Segoe UI",system-ui,sans-serif;
-    background:var(--bg);color:var(--ink);line-height:1.6;-webkit-font-smoothing:antialiased}
+  /* デザイントークン・base(reset/body/a)は theme.css に集約。以下はこのページ固有のスタイル */
   .wrap{max-width:980px;margin:0 auto;padding:18px 16px 72px}
   header.hero{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin:6px 0 14px}
   .logo{width:46px;height:46px;border-radius:12px;background:var(--accent);display:grid;place-items:center;flex:0 0 auto;box-shadow:var(--shadow)}

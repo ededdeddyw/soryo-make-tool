@@ -1,0 +1,14 @@
+/* 処分ナビ 共通テーマ（index / soryo-tool / reminder 共通の土台）
+   色・余白・角丸・影などの design token はここを変えれば全画面に反映されます。
+   ベース＝ニュートラルグレー、緑(--accent)はブランドのアクセント。 */
+:root{
+  --bg:#f3f4f6; --card:#ffffff; --ink:#1f2328; --muted:#6b7280;
+  --line:#e5e7eb; --accent:#2e6b3e; --accent-soft:#eef3f0;
+  --ok:#2e8b57; --ok-bg:#eaf5ef; --warn:#b7791f; --warn-bg:#fbf3e2;
+  --bad:#c0392b; --bad-bg:#fbece9; --blue:#2b6cb0; --blue-bg:#eaf1fa;
+  --radius:14px; --shadow:0 2px 10px rgba(17,24,39,.06);
+}
+*{box-sizing:border-box}
+body{margin:0;font-family:"Hiragino Sans","Yu Gothic UI","Segoe UI",system-ui,sans-serif;
+  background:var(--bg);color:var(--ink);line-height:1.6;-webkit-font-smoothing:antialiased}
+a{color:var(--accent)}

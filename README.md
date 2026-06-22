@@ -9,6 +9,7 @@
 - **data/gomi/＜区コード＞.json** … 区ごとの収集日データ（13109＝品川区、13103＝港区。公式データから生成）。reminder.html が選択時に読み込む。
 - **scripts/build-gomi.js** … 品川区JSONの生成（公式オープンデータCSVを取得・解析）。`node scripts/build-gomi.js` で再生成。
 - **scripts/build-gomi-minato.mjs** ＋ **lib-minato-pdf.mjs** ＋ **minato-map.json** … 港区JSONの生成。港区はCSVが無くPDFカレンダー（令和8年度版・15スケジュール）のため、pdfjsで座標解析し収集曜日を抽出。`npm i pdfjs-dist` 後に `node scripts/build-gomi-minato.mjs`。出力JSONはコミット済みでサイト実行時は不要。
+- **theme.css** … 3ファイル共通のデザイントークン（色・余白・角丸・影＝`:root`変数）＋base(reset/body/a)。**配色やテーマを変えるときはここ1か所**。基調＝ニュートラルグレー、緑(--accent)はブランドのアクセント。※コンポーネント形状（.btn等）は現状まだ各HTMLに個別定義（次段で集約予定）。
 - **manifest.json / sw.js / icon-*.png / icon.svg** … PWA関連（ホーム追加・オフライン・アイコン）。
 - **docs/reminder-design.md** … 収集日リマインドの設計メモ（Phase1=Web .ics〔実装済〕→Phase2=Capacitorネイティブ通知）。
 - **docs/strategy.md** … サービス戦略メモ（コンセプト・想定ユーザー・マネタイズの優先順位・「正直さが堀」の方針）。
