@@ -12,6 +12,7 @@
 - **manifest.json / sw.js / icon-*.png / icon.svg** … PWA関連（ホーム追加・オフライン・アイコン）。
 - **docs/reminder-design.md** … 収集日リマインドの設計メモ（Phase1=Web .ics〔実装済〕→Phase2=Capacitorネイティブ通知）。
 - **docs/strategy.md** … サービス戦略メモ（コンセプト・想定ユーザー・マネタイズの優先順位・「正直さが堀」の方針）。
+- **docs/gomi-flow-design.md** … ②ごみルールの再設計（①の情報を引き継ぎ→デフォルト判定→素材で絞り込み→「いつ・どう出すか」まで段階表示／収集日データ連携／将来のリマインダー集約アプリ導線）。未実装。
 
 ## 使い方（非エンジニア向け）
 - `index.html` をダブルクリック → ブラウザ（Chrome等）で開く。更新は F5。
