@@ -677,7 +677,7 @@ const SODAI_CM={仙台市:30,さいたま市:90,横浜市:30,川崎市:30,相模
   札幌市:null,千葉市:null,新潟市:null,静岡市:null,京都市:null,神戸市:null,岡山市:null,北九州市:null,福岡市:null,熊本市:null};
 for(const k in CITY_RULES){ CITY_RULES[k].sodaiCm = (k in SODAI_CM)?SODAI_CM[k]:null; }
 // 収集日データ（data/gomi/*.json）がある区 → 最終結論で実際の曜日を出せる
-const WARD_GOMI_CODE={品川区:'13109', 港区:'13103', 文京区:'13105', 江東区:'13108', 中央区:'13102', 中野区:'13114'};
+const WARD_GOMI_CODE={品川区:'13109', 港区:'13103', 文京区:'13105', 江東区:'13108', 中央区:'13102', 中野区:'13114', 台東区:'13106', 大田区:'13111'};
 
 // 都道府県 → 画面内蔵都市（クイック選択用）
 const PREF_CITIES = {

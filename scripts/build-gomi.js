@@ -16,9 +16,10 @@ const NUM = { '１': 1, '２': 2, '３': 3, '４': 4, '５': 5, '1': 1, '2': 2, 
 function parseDay(s) {
   s = (s || '').trim().replace(/\s/g, '');
   if (!s || s === '-' || s === '−' || s === '―' || s.includes('隔週') || s.includes('なし') || s.includes('未定')) return null;
-  if (s.includes('第')) {
-    const weeks = []; let m; const re = /第([1-5１-５])/g;
-    while ((m = re.exec(s))) weeks.push(NUM[m[1]]);
+  if (s.includes('第') || s.includes('回目')) {  // 「第2第4金曜」「1回目・3回目の土曜日」等
+    const weeks = []; let m;
+    let re = /第([1-5１-５])/g; while ((m = re.exec(s))) weeks.push(NUM[m[1]]);
+    re = /([1-5１-５])回目/g; while ((m = re.exec(s))) weeks.push(NUM[m[1]]);
     let dm = s.match(/([日月火水木金土])曜/) || s.match(/第[1-5１-５]([日月火水木金土])/);
     const day = dm ? WMAP[dm[1]] : null;
     if (day == null || !weeks.length) return null;
@@ -105,6 +106,19 @@ const WARDS = [
       { col: 9, key: 'noncomb', em: '🪨', name: '陶器・ガラス・金属ごみ' },
       { col: 7, key: 'resource', em: '♻️', name: '資源（びん・ペットボトル）' },
       { col: 6, key: 'plastic', em: '🧴', name: '資源プラスチック' } ] } },
+  { code: '13106', ward: '台東区', format: 'wide', enc: 'sjis',
+    url: 'https://www.city.taito.lg.jp/kusei/online/opendata/koutu/gomibunbetuitiran.files/tiikibetusyuusyuuyoubiitiran.csv',
+    cols: { town: 1, types: [
+      { col: 3, key: 'burn', em: '🔥', name: '燃やすごみ' },
+      { col: 4, key: 'noncomb', em: '🪨', name: '燃やさないごみ' },
+      { col: 2, key: 'resource', em: '♻️', name: '資源' } ] } },
+  { code: '13111', ward: '大田区', format: 'xlsx', headerRows: 1,
+    url: 'https://www.opendata.metro.tokyo.lg.jp/ootaku/131113_shigengomiyoubi.xlsx',
+    cols: { town: 1, chome: 2, types: [
+      { col: 3, key: 'plastic', em: '🧴', name: 'プラスチック' },
+      { col: 4, key: 'resource', em: '♻️', name: '資源' },
+      { col: 5, key: 'burn', em: '🔥', name: '可燃ごみ' },
+      { col: 6, key: 'noncomb', em: '🪨', name: '不燃ごみ' } ] } },
 ];
 
 function writeWard(w, districts, typesSeen, skipped) {
@@ -154,9 +168,43 @@ async function buildWide(w) {
   writeWard(w, districts, order, skipped);
 }
 
+// XLSX（大田区など）。セル結合は !merges をたどって正しい値を埋める（推測ではない）。要 `npm i xlsx`。
+async function buildXlsx(w) {
+  const XLSX = require('xlsx');
+  const res = await fetch(w.url);
+  if (!res.ok) throw new Error('HTTP ' + res.status + ' ' + w.url);
+  const wb = XLSX.read(Buffer.from(await res.arrayBuffer()), { type: 'buffer' });
+  const ws = wb.Sheets[w.sheet || wb.SheetNames[0]];
+  const ref = XLSX.utils.decode_range(ws['!ref']);
+  const A = [];
+  for (let r = ref.s.r; r <= ref.e.r; r++) {
+    const row = [];
+    for (let c = ref.s.c; c <= ref.e.c; c++) { const cell = ws[XLSX.utils.encode_cell({ r, c })]; row.push(cell ? String(cell.v) : ''); }
+    A.push(row);
+  }
+  for (const m of (ws['!merges'] || [])) { const v = A[m.s.r][m.s.c]; for (let r = m.s.r; r <= m.e.r; r++) for (let c = m.s.c; c <= m.e.c; c++) A[r][c] = v; }
+  const typesSeen = new Map(), districts = {}; let skipped = 0;
+  for (let i = (w.headerRows || 1); i < A.length; i++) {
+    const r = A[i];
+    const town = (r[w.cols.town] || '').trim();
+    const detail = w.cols.chome != null ? (r[w.cols.chome] || '').replace(/\s+/g, '／').replace(/／+/g, '／').replace(/^／|／$/g, '').trim() : '';
+    const name = (town + detail).trim();
+    if (!name) { skipped++; continue; }
+    const d = districts[name] || {}; let any = false;
+    for (const t of w.cols.types) { const pat = parseDay(r[t.col]); if (pat) { d[t.key] = pat; typesSeen.set(t.key, { key: t.key, em: t.em, name: t.name }); any = true; } }
+    if (any) districts[name] = d; else if (!districts[name]) skipped++;
+  }
+  const order = new Map(); for (const t of w.cols.types) if (typesSeen.has(t.key)) order.set(t.key, typesSeen.get(t.key));
+  writeWard(w, districts, order, skipped);
+}
+
 (async () => {
   for (const w of WARDS) {
-    try { w.format === 'long' ? await buildLong(w) : await buildWide(w); }
+    try {
+      if (w.format === 'long') await buildLong(w);
+      else if (w.format === 'xlsx') await buildXlsx(w);
+      else await buildWide(w);
+    }
     catch (e) { console.error(w.ward + ' FAILED:', e.message); process.exitCode = 1; }
   }
 })();
