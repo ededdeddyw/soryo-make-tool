@@ -516,6 +516,7 @@ function renderResult(){
 function showView(name){
   document.querySelectorAll('.view').forEach(v=> v.classList.toggle('show', v.id==='nav-'+name));
   document.querySelectorAll('nav.tabs .tab').forEach(b=> b.classList.toggle('active', b.dataset.view===name));
+  if(name==='gov'){ if(!govSize && answers.size) govSize=answers.size; renderGov(); }  // ①の大きさを引き継ぐ
   window.scrollTo({top:0,behavior:'smooth'});
 }
 function gotoCalc(){
@@ -529,10 +530,9 @@ function gotoCalc(){
   showView('calc');
 }
 function gotoGov(){
-  if(answers.size) govSize=answers.size;   // ①の大きさを引き継ぐ
+  if(answers.size) govSize=answers.size;   // ①の大きさを引き継ぐ（結果リンク経由）
   govMat=null;
   showView('gov');
-  renderGov();
 }
 
 /* ============================ ② 自治体ごみルール ============================ */
