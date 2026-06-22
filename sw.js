@@ -3,7 +3,7 @@
      オフライン時のみキャッシュにフォールバック。
    - 静的アセット・データ（icon/manifest/json）= cache-first：高速・オフライン対応。
    ※ アイコンやデータを差し替えたら CACHE のバージョン（v5→v6…）を上げて再取得させる。 */
-const CACHE = 'shobun-navi-v6';
+const CACHE = 'shobun-navi-v7';
 const ASSETS = [
   './',
   './index.html',
@@ -17,6 +17,7 @@ const ASSETS = [
   './icon-512.png',
   './data/gomi/13109.json',
   './data/gomi/13103.json',
+  './data/gomi/13105.json',
 ];
 
 self.addEventListener('install', e => {
