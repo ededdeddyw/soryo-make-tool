@@ -301,6 +301,10 @@ function eligibleMethods(d,w){
               :{name:'ゆうパック',svc:'ゆうゆう',ship:0,mat:0,matLabel:'',cost:0,note:'集荷/コンビニ持込・追跡',ok:false,reason:w>YUPACK_MAXW?'重さ25kg超':'3辺合計170cm超'});
   return list;
 }
+/* 入力の記憶（再訪を速く） */
+const CALC_KEY='shobun-navi.calc', CALC_IDS=['price','d1','d2','d3','weight','material','laborMin','wage','bundle'];
+function saveCalc(){ try{ const o={}; CALC_IDS.forEach(id=>o[id]=$(id).value); localStorage.setItem(CALC_KEY, JSON.stringify(o)); }catch(e){} }
+function restoreCalc(){ try{ const o=JSON.parse(localStorage.getItem(CALC_KEY)||'null'); if(o) CALC_IDS.forEach(id=>{ if(o[id]!=null && $(id)) $(id).value=o[id]; }); }catch(e){} }
 function calc(){
   const price=+$('price').value||0, material=+$('material').value||0, laborMin=+$('laborMin').value||0, wage=+$('wage').value||0, bundle=Math.max(1,+$('bundle').value||1);
   const d=buildDims(), w=+$('weight').value||0;
@@ -308,6 +312,7 @@ function calc(){
   const best=ok.length?ok.reduce((a,b)=> b.cost<a.cost?b:a):null;
   const tip=thicknessTip(d,w,best);
   renderResult({price,material,laborMin,wage,bundle,best,tip}); renderCompare(methods,best);
+  saveCalc();
 }
 function renderResult(o){
   const v=$('verdict'),nb=$('netBig'),ns=$('netSub'),bd=$('breakdown'),na=$('nextActions'),sp=$('shipPick');
@@ -355,6 +360,7 @@ function svg(i){return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColo
 
 ['price','d1','d2','d3','weight','material','laborMin','wage','bundle'].forEach(id=> $(id).addEventListener('input',calc));
 buildPresets();
+restoreCalc();
 calc();
 </script>
 </body>
