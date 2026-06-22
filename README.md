@@ -11,6 +11,7 @@
 - **scripts/build-gomi-minato.mjs** ＋ **lib-minato-pdf.mjs** ＋ **minato-map.json** … 港区JSONの生成。港区はCSVが無くPDFカレンダー（令和8年度版・15スケジュール）のため、pdfjsで座標解析し収集曜日を抽出。`npm i pdfjs-dist` 後に `node scripts/build-gomi-minato.mjs`。出力JSONはコミット済みでサイト実行時は不要。
 - **manifest.json / sw.js / icon-*.png / icon.svg** … PWA関連（ホーム追加・オフライン・アイコン）。
 - **docs/reminder-design.md** … 収集日リマインドの設計メモ（Phase1=Web .ics〔実装済〕→Phase2=Capacitorネイティブ通知）。
+- **docs/strategy.md** … サービス戦略メモ（コンセプト・想定ユーザー・マネタイズの優先順位・「正直さが堀」の方針）。
 
 ## 使い方（非エンジニア向け）
 - `index.html` をダブルクリック → ブラウザ（Chrome等）で開く。更新は F5。
