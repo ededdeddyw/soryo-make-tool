@@ -10,6 +10,9 @@
 - **scripts/build-gomi.js** … 品川区JSONの生成（公式オープンデータCSVを取得・解析）。`node scripts/build-gomi.js` で再生成。
 - **scripts/build-gomi-minato.mjs** ＋ **lib-minato-pdf.mjs** ＋ **minato-map.json** … 港区JSONの生成。港区はCSVが無くPDFカレンダー（令和8年度版・15スケジュール）のため、pdfjsで座標解析し収集曜日を抽出。`npm i pdfjs-dist` 後に `node scripts/build-gomi-minato.mjs`。出力JSONはコミット済みでサイト実行時は不要。
 - **theme.css** … 3ファイル共通のデザイントークン（色・余白・角丸・影＝`:root`変数）＋base(reset/body/a)。**配色やテーマを変えるときはここ1か所**。基調＝ニュートラルグレー、緑(--accent)はブランドのアクセント。※コンポーネント形状（.btn等）は現状まだ各HTMLに個別定義（次段で集約予定）。
+- **guide/** … SEO向けガイド記事（メルカリ送料負け／ネコポス厚さ／粗大ごみ基準＋ハブ）。各記事からツールへ内部リンク。`theme.css`使用。
+- **ogp.jpg** … SNS/LINE共有用バナー（1200×630・テキスト入り）。全ページの og:image。Canvasで生成（再生成はブラウザCanvas→base64→ファイル化）。
+- **robots.txt / sitemap.xml** … クローラ向け（インデックス促進）。新ページ追加時は sitemap.xml も更新。
 - **manifest.json / sw.js / icon-*.png / icon.svg** … PWA関連（ホーム追加・オフライン・アイコン）。
 - **docs/reminder-design.md** … 収集日リマインドの設計メモ（Phase1=Web .ics〔実装済〕→Phase2=Capacitorネイティブ通知）。
 - **docs/strategy.md** … サービス戦略メモ（コンセプト・想定ユーザー・マネタイズの優先順位・「正直さが堀」の方針）。
