@@ -63,13 +63,13 @@ button,a,.preset,.btn,.tab,.wz-opt,.g-mat,.chip,input,select,summary{transition:
 .preset .pm{font-size:.68rem;color:var(--muted);display:block;margin-top:3px;font-weight:400}
 
 /* 計算結果ブロック（index ③ / soryo-tool 共通：最安カード・判定・内訳・比較表） */
-.ship-pick{display:flex;align-items:center;gap:11px;background:var(--accent-soft);border:1px solid #bfe3cd;border-radius:12px;padding:11px 14px;margin-bottom:12px}
-.ship-pick .pe{font-size:1.5rem;flex:0 0 auto}
+.ship-pick{display:flex;align-items:center;gap:12px;background:linear-gradient(135deg,var(--accent-soft),#ffffff);border:1px solid #cfe3d6;border-radius:14px;padding:13px 15px;margin-bottom:12px;box-shadow:0 2px 10px rgba(46,107,62,.10)}
+.ship-pick .pe{font-size:1.6rem;flex:0 0 auto;filter:drop-shadow(0 1px 1px rgba(0,0,0,.08))}
 .ship-pick .pl{font-size:.7rem;color:var(--muted);font-weight:700}
-.ship-pick .pn{font-size:1.02rem;font-weight:800;line-height:1.2}
+.ship-pick .pn{font-size:1.05rem;font-weight:800;line-height:1.2}
 .ship-pick .pc{margin-left:auto;text-align:right;flex:0 0 auto}
-.ship-pick .pc b{font-size:1.05rem}
-.verdict{border-radius:var(--radius);padding:16px;display:flex;gap:13px;align-items:flex-start;margin-bottom:14px;border:1px solid transparent}
+.ship-pick .pc b{font-size:1.12rem;color:var(--accent)}
+.verdict{border-radius:var(--radius);padding:16px;display:flex;gap:13px;align-items:flex-start;margin-bottom:14px;border:1px solid transparent;box-shadow:var(--shadow)}
 .verdict .ico{width:38px;height:38px;border-radius:10px;display:grid;place-items:center;flex:0 0 auto;background:#fff}
 .verdict .ico svg{width:23px;height:23px}
 .verdict .vt{font-size:1.12rem;font-weight:800;margin:0}.verdict .vd{font-size:.83rem;margin:3px 0 0}
