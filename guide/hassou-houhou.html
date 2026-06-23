@@ -18,6 +18,7 @@
 <link rel="icon" href="../icon.svg">
 <link rel="stylesheet" href="../theme.css">
 <style>
+  .article h2{scroll-margin-top:16px}
   .flow{display:grid;gap:10px;margin:14px 0}
   .flow .q{background:var(--accent-soft);border:1px solid var(--line);border-radius:12px;padding:12px 14px;font-weight:700;font-size:.95rem}
   .flow .q .a{display:block;font-weight:400;font-size:.84rem;color:var(--muted);margin-top:4px}
@@ -57,7 +58,19 @@
 
   <p class="lead">公式の説明は方法が多くて複雑ですが、覚えることはシンプル。<strong>メルカリ便は「匿名配送・全国一律・補償つき」の2系統だけ</strong>。あとは「①厚さ3cm以内か」「②大きさ・重さ」で送り方が決まります。<strong>このページだけ見れば、出品中の商品をどう送るか確定できます。</strong></p>
 
-  <h2>まず：そもそも「らくらく」と「ゆうゆう」って何？</h2>
+  <nav class="toc" aria-label="目次">
+    <p class="toc-h">この記事の目次</p>
+    <a href="#basics">そもそも「らくらく」と「ゆうゆう」の違い</a>
+    <a href="#chart">30秒で決まる早見チャート</a>
+    <a href="#reverse">送りたい物から選ぶ（逆引き）</a>
+    <a href="#thin">薄物・小物の比較表（保存版）</a>
+    <a href="#large">中〜大型の比較表（宅急便・ゆうパック）</a>
+    <a href="#ops">どこで出す？受け取る？集荷は？</a>
+    <a href="#fit">結局どれに向いてる？</a>
+    <a href="#tips">失敗しない3つのコツ</a>
+  </nav>
+
+  <h2 id="basics">まず：そもそも「らくらく」と「ゆうゆう」って何？</h2>
   <p>メルカリの発送は大きく2系統。どちらも<strong>匿名配送・全国一律料金・あんしん補償・追跡つき</strong>で、宛名書き不要。違いは「<strong>どの運送会社か＝出せる場所・受け取れる場所</strong>」です。</p>
   <div class="sys">
     <div class="s"><div class="t">🐱 らくらくメルカリ便（ヤマト運輸）</div>
@@ -69,7 +82,12 @@
   </div>
   <p class="note"><strong>「ゆうゆうメルカリ便」と「ゆうパケット」の違いは？</strong>──「ゆうゆうメルカリ便」は<strong>受付サービスの名前</strong>、「ゆうパケット」はその<strong>中の発送方法（サイズの種類）の1つ</strong>です。同様に「らくらくメルカリ便」の中に「ネコポス」等があります。つまり<strong>系統＝サービス名／その中の各方法＝サイズ区分</strong>と考えればOK。</p>
 
-  <h2>① 30秒で決まる早見チャート</h2>
+  <div class="point">
+    <p class="pt-h">✓ 覚えるのはこれだけ</p>
+    まず<strong>厚さが3cm以内に収まるか</strong>を見る。収まれば薄物ルートで最安、収まらなければ箱系→大型へ。どの方法も<strong>匿名・追跡・補償つき</strong>なので、メルカリ便の中から選べば失敗しません。
+  </div>
+
+  <h2 id="chart">① 30秒で決まる早見チャート</h2>
   <div class="flow">
     <div class="q">Q1. 厚さは3cm以内に収まる？<span class="a">→ YES：薄物ルート（ネコポス／ゆうパケット系／ゆうパケットポストmini）が最安。NO：Q2へ</span></div>
     <div class="q">Q2. 専用箱に入るくらいの「小さい箱物」？<span class="a">→ 厚さ5cm・かさばる＝宅急便コンパクト、厚さ7cmの箱＝ゆうパケットプラス</span></div>
@@ -78,7 +96,7 @@
 
   <a class="cta" href="../soryo-tool.html">▶ サイズ・重さを入れて最安の発送方法を自動判定（無料）</a>
 
-  <h2>② 送りたい物から選ぶ（逆引き）</h2>
+  <h2 id="reverse">② 送りたい物から選ぶ（逆引き）</h2>
   <div class="table-scroll">
   <table class="g">
     <thead><tr><th>送りたいもの</th><th>これがおすすめ</th><th>送料の目安</th><th>理由</th></tr></thead>
@@ -95,7 +113,7 @@
   </div>
   <p class="note">数mmの差で規格外になることがあります。最終的な最安は<a href="../soryo-tool.html">計算ツール</a>でサイズ・重さから自動判定するのが確実です。</p>
 
-  <h2>③ 薄物・小物の比較表（保存版）</h2>
+  <h2 id="thin">③ 薄物・小物の比較表（保存版）</h2>
   <div class="table-scroll">
   <table class="g">
     <thead><tr><th>発送方法</th><th>系統</th><th>サイズ上限</th><th>厚さ</th><th>重さ</th><th>送料(目安)</th></tr></thead>
@@ -111,7 +129,7 @@
   </div>
   <p class="note">ネコポスは2025年11月にサイズ拡大（長辺34cm・3辺合計60cm）。ゆうパケットとほぼ同条件で20円安い。料金は2026年6月時点の目安。</p>
 
-  <h2>④ 中〜大型の比較表（宅急便・ゆうパック）</h2>
+  <h2 id="large">④ 中〜大型の比較表（宅急便・ゆうパック）</h2>
   <div class="table-scroll">
   <table class="g">
     <thead><tr><th>サイズ(3辺合計)</th><th>宅急便(らくらく)</th><th>重さ上限</th><th>ゆうパック(ゆうゆう)</th><th>重さ上限</th></tr></thead>
@@ -130,7 +148,7 @@
   </div>
   <p class="note">170サイズ超は宅急便（〜200cm）のみ。180・200サイズはヤマト営業所持込／集荷のみ対応。どちらも追跡・補償あり。</p>
 
-  <h2>⑤ どこで出す？どこで受け取る？集荷は？（公式の運用まとめ）</h2>
+  <h2 id="ops">⑤ どこで出す？どこで受け取る？集荷は？（公式の運用まとめ）</h2>
   <p>「料金は分かったけど、結局どこに持ち込むの？」という一番分かりづらい部分を一覧にしました。</p>
   <div class="table-scroll">
   <table class="g">
@@ -147,7 +165,7 @@
   </div>
   <p class="note">運べない大型は<strong>集荷が呼べる宅急便（らくらく）やゆうパック</strong>が便利。コンビニ持込は、ローソン＝ゆうゆう系、セブン/ファミマ＝らくらく系、と覚えると迷いません。</p>
 
-  <h2>⑥ 結局どれに向いてる？（具体例つき）</h2>
+  <h2 id="fit">⑥ 結局どれに向いてる？（具体例つき）</h2>
   <div class="pick-cards">
     <div class="pc"><div class="h"><span class="nm">ゆうパケットポストmini</span><span class="pr">160円〜</span></div>
       <div class="sp">専用封筒21×17cm／厚さ3cm／2kg・ポスト投函</div>
@@ -182,12 +200,12 @@
 
   <div class="callout">💡 <b>らくらく／ゆうゆうメルカリ便はどれも「匿名配送・全国一律・追跡・あんしん補償」</b>。住所を相手に知られず、配送トラブル時の補償もあるのが普通郵便との大きな違いです。<b>迷ったらメルカリ便の中から選べば安心</b>。</div>
 
-  <h2>⑦ 失敗しない3つのコツ</h2>
-  <ul>
+  <h2 id="tips">⑦ 失敗しない3つのコツ</h2>
+  <ol class="steps">
     <li><strong>厚さを制す者が送料を制す</strong>：3cmの壁を越えると一気に高くなる。平たく梱包できないか必ず確認。<a href="./nekoposu-atsusa.html">→ 厚さ3cmを超えたときの対処</a></li>
     <li><strong>「小さいのに高い」は厚物の箱系で比較</strong>：厚さ5cm=宅急便コンパクト、7cm=ゆうパケットプラス。<a href="./compact-vs-yupacket-plus.html">→ コンパクト vs ゆうパケットプラス</a></li>
     <li><strong>送料負けに注意</strong>：安い物を単体で送ると赤字に。まとめ売りや損益分岐の確認を。<a href="./mercari-soryo-make.html">→ 送料負けとは</a></li>
-  </ul>
+  </ol>
 
   <a class="cta" href="../soryo-tool.html">▶ あなたの商品で「最安の送り方」と「手残り」を計算する（無料）</a>
 
