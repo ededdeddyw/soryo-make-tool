@@ -3,28 +3,48 @@
    ベース＝ニュートラルグレー、緑(--accent)はブランドのアクセント。 */
 :root{
   --bg:#f3f4f6; --card:#ffffff; --ink:#1f2328; --muted:#6b7280;
-  --line:#e5e7eb; --accent:#2e6b3e; --accent-soft:#eef3f0;
+  --line:#e6e8eb; --accent:#2e6b3e; --accent-soft:#eef3f0;
+  --accent-deep:#234f30; --accent-bright:#3c8a52;
   --ok:#2e8b57; --ok-bg:#eaf5ef; --warn:#b7791f; --warn-bg:#fbf3e2;
   --bad:#c0392b; --bad-bg:#fbece9; --blue:#2b6cb0; --blue-bg:#eaf1fa;
-  --radius:14px; --shadow:0 2px 10px rgba(17,24,39,.06);
+  --radius:16px;
+  --shadow:0 1px 2px rgba(17,24,39,.04), 0 6px 18px rgba(17,24,39,.06);
+  --shadow-lg:0 2px 6px rgba(17,24,39,.06), 0 16px 36px rgba(17,24,39,.11);
+  --ring:0 0 0 3px var(--accent-soft);
 }
 *{box-sizing:border-box}
 body{margin:0;font-family:"Hiragino Sans","Yu Gothic UI","Segoe UI",system-ui,sans-serif;
-  background:var(--bg);color:var(--ink);line-height:1.6;-webkit-font-smoothing:antialiased}
+  background-color:var(--bg);
+  background-image:radial-gradient(1100px 440px at 50% -160px, rgba(46,107,62,.08), transparent 72%);
+  background-attachment:fixed;
+  color:var(--ink);line-height:1.6;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
 a{color:var(--accent)}
+/* 触れる要素の微アニメ＋フォーカスリング（日常使いの質感） */
+button,a,.preset,.btn,.tab,.wz-opt,.g-mat,.chip,input,select,summary{transition:background-color .15s ease,border-color .15s ease,box-shadow .18s ease,transform .12s ease,color .15s ease}
+:focus-visible{outline:none;box-shadow:var(--ring)}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
 
 /* 共通コンポーネント：ボタン・バッジ（index / reminder 共通） */
-.btn{font:inherit;font-weight:700;cursor:pointer;border-radius:10px;padding:10px 16px;border:1px solid var(--line);background:#fff;color:var(--ink)}
-.btn:hover:not(:disabled){filter:brightness(.98)}
-.btn.primary{background:var(--accent);color:#fff;border-color:var(--accent)}
-.btn.primary:disabled{background:#a9c6b4;border-color:#a9c6b4;cursor:not-allowed}
-.btn.ghost{color:var(--muted)}
+.btn{font:inherit;font-weight:700;cursor:pointer;border-radius:11px;padding:10px 16px;border:1px solid var(--line);background:#fff;color:var(--ink);box-shadow:0 1px 2px rgba(17,24,39,.05)}
+.btn:hover:not(:disabled){border-color:#d6dade;box-shadow:var(--shadow);transform:translateY(-1px)}
+.btn:active:not(:disabled){transform:translateY(0);box-shadow:0 1px 2px rgba(17,24,39,.06)}
+.btn.primary{background:linear-gradient(180deg,var(--accent-bright),var(--accent));color:#fff;border-color:var(--accent-deep);box-shadow:0 2px 9px rgba(46,107,62,.30)}
+.btn.primary:hover:not(:disabled){box-shadow:0 7px 18px rgba(46,107,62,.36)}
+.btn.primary:disabled{background:#a9c6b4;border-color:#a9c6b4;cursor:not-allowed;box-shadow:none}
+.btn.ghost{color:var(--muted);background:transparent;border-color:transparent;box-shadow:none}
+.btn.ghost:hover:not(:disabled){background:var(--accent-soft);color:var(--accent);box-shadow:none;transform:none}
 .verified{font-size:.68rem;background:var(--ok-bg);color:var(--ok);border-radius:5px;padding:1px 6px;font-weight:700;margin-left:6px}
 .estim{font-size:.68rem;background:var(--warn-bg);color:var(--warn);border-radius:5px;padding:1px 6px;font-weight:700;margin-left:6px}
 
 /* ヘッダー・レイアウト土台（index / soryo-tool / reminder 共通） */
-.logo{width:46px;height:46px;border-radius:12px;background:var(--accent);display:grid;place-items:center;flex:0 0 auto;box-shadow:var(--shadow)}
+.logo{width:46px;height:46px;border-radius:14px;background:linear-gradient(135deg,var(--accent-bright),var(--accent-deep));display:grid;place-items:center;flex:0 0 auto;
+  box-shadow:0 4px 12px rgba(46,107,62,.30), inset 0 1px 0 rgba(255,255,255,.28)}
 .logo svg{width:26px;height:26px}
+/* ブランド（ロゴ＋ワードマークのリンク） */
+.brand{display:inline-flex;align-items:center;gap:11px;text-decoration:none;color:inherit;border-radius:14px}
+.brand h1{margin:0;letter-spacing:.01em}
+.brand:hover .logo{transform:translateY(-1px);box-shadow:0 7px 18px rgba(46,107,62,.36), inset 0 1px 0 rgba(255,255,255,.28)}
+.brand:hover h1{color:var(--accent)}
 .sub{font-size:.82rem;color:var(--muted);margin:2px 0 0}
 .toplink{font-size:.8rem;margin:0 0 14px}
 .toplink a{color:var(--accent);font-weight:700;text-decoration:none;background:#fff;border:1px solid var(--line);border-radius:999px;padding:6px 13px;box-shadow:var(--shadow)}
