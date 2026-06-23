@@ -28,12 +28,8 @@
   /* デザイントークン・base(reset/body/a)は theme.css に集約。以下はこのページ固有のスタイル */
   .wrap{max-width:760px;margin:0 auto;padding:18px 16px 72px}
   header.hero{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin:6px 0 10px}
-  .logo{width:46px;height:46px;border-radius:12px;background:var(--accent);display:grid;place-items:center;flex:0 0 auto;box-shadow:var(--shadow)}
-  .logo svg{width:26px;height:26px}
   h1{font-size:1.28rem;margin:0}
-  .sub{font-size:.82rem;color:var(--muted);margin:2px 0 0}
-  .toplink{font-size:.8rem;margin:0 0 14px}
-  .toplink a{color:var(--accent);font-weight:700;text-decoration:none;background:#fff;border:1px solid var(--line);border-radius:999px;padding:6px 13px;box-shadow:var(--shadow)}
+  /* .logo / .sub / .toplink / .callout / .row2 / .disc は theme.css に集約（.preset はこのページ用に下で上書き） */
   .card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:18px;box-shadow:var(--shadow);margin-bottom:16px}
   .card h2{font-size:1rem;margin:0 0 4px}
   .card .lead{font-size:.82rem;color:var(--muted);margin:0 0 14px}
@@ -70,12 +66,7 @@
   .actions{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:4px}
   .remind-row{display:flex;align-items:center;gap:8px;font-size:.8rem;color:var(--muted);margin:6px 0 2px}
   .remind-row select{font:inherit;border:1px solid var(--line);border-radius:8px;padding:6px 8px;color:var(--ink);background:#fff}
-  .callout{margin-top:12px;background:var(--blue-bg);border:1px solid #bcd6ef;border-radius:11px;padding:12px 14px;font-size:.82rem}
-  .callout b{color:var(--blue)}
-  .disc{font-size:.74rem;color:var(--muted);background:#fff;border:1px dashed var(--line);border-radius:10px;padding:11px 13px;margin-top:14px}
-  .disc b{color:var(--ink)}
-  .row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-  @media(max-width:560px){.row2{grid-template-columns:1fr}}
+  .disc{margin-top:14px}
   label.fld{display:block;font-size:.74rem;color:var(--muted);font-weight:700;margin:0 0 4px}
   select.area{width:100%;padding:11px 12px;font-size:1rem;border:1px solid var(--line);border-radius:10px;background:#fff;color:var(--ink)}
   select.area:disabled{background:var(--bg);color:#9aa49d}
