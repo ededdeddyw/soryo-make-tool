@@ -99,23 +99,46 @@ table.cmp-t tr.ng td{color:#aab4ae}
 .disc{font-size:.74rem;color:var(--muted);background:#fff;border:1px dashed var(--line);border-radius:10px;padding:11px 13px}
 .disc b{color:var(--ink)}
 
-/* ガイド記事（guide/*.html）共通スタイル */
-.article{max-width:720px;margin:0 auto;padding:18px 16px 72px}
-.gnav{display:flex;gap:8px;flex-wrap:wrap;align-items:center;font-size:.84rem;margin:6px 0 14px}
-.gnav a{font-weight:700;text-decoration:none;background:#fff;border:1px solid var(--line);border-radius:999px;padding:6px 13px;box-shadow:var(--shadow)}
-.article h1{font-size:1.5rem;line-height:1.35;margin:6px 0 6px}
-.article .meta{font-size:.78rem;color:var(--muted);margin:0 0 18px}
-.article h2{font-size:1.12rem;margin:24px 0 8px;padding-top:6px;border-top:1px solid var(--line)}
-.article h3{font-size:1rem;margin:16px 0 6px}
-.article p,.article li{font-size:.95rem;line-height:1.85}
-.article ul,.article ol{padding-left:1.3em;margin:8px 0}
-.article li{margin:4px 0}
-.article .lead{font-size:1rem;color:var(--ink);background:var(--accent-soft);border:1px solid var(--line);border-radius:12px;padding:13px 15px;margin:0 0 18px}
-.article .cta{display:block;text-align:center;font-weight:700;text-decoration:none;background:var(--accent);color:#fff;border-radius:12px;padding:14px 18px;margin:18px 0;box-shadow:var(--shadow)}
-.article .cta.sub{background:#fff;color:var(--accent);border:1px solid var(--accent)}
-.article table.g{width:100%;border-collapse:collapse;font-size:.9rem;margin:10px 0}
-.article table.g th,.article table.g td{border:1px solid var(--line);padding:8px 10px;text-align:left}
-.article table.g th{background:#fafbfa;font-size:.82rem;color:var(--muted)}
-.article .note{font-size:.82rem;color:var(--muted);background:#fff;border:1px dashed var(--line);border-radius:10px;padding:11px 13px;margin:14px 0}
-.article .rel{margin-top:24px;border-top:1px solid var(--line);padding-top:12px}
-.article .rel a{display:inline-block;margin:4px 8px 4px 0}
+/* ガイド記事（guide/*.html）共通スタイル ― 編集記事クオリティの「読み物」体験 */
+.article{max-width:744px;margin:16px auto;background:var(--card);border:1px solid var(--line);border-radius:20px;box-shadow:var(--shadow);padding:30px 32px 52px}
+@media(max-width:560px){.article{margin:10px;border-radius:16px;padding:22px 18px 42px}}
+.gnav{display:flex;gap:7px;flex-wrap:wrap;align-items:center;font-size:.8rem;margin:0 0 18px}
+.gnav a{font-weight:700;text-decoration:none;background:var(--accent-soft);color:var(--accent);border:1px solid #dce7e0;border-radius:999px;padding:6px 13px}
+.gnav a:hover{background:#e4efe8}
+.article .kicker{display:inline-block;font-size:.72rem;font-weight:800;letter-spacing:.05em;color:var(--accent);background:var(--accent-soft);border-radius:999px;padding:3px 11px;margin-bottom:10px}
+.article h1{font-size:1.72rem;line-height:1.34;margin:4px 0 10px;font-weight:800;letter-spacing:.01em}
+@media(max-width:560px){.article h1{font-size:1.46rem}}
+.article .meta{font-size:.78rem;color:var(--muted);margin:0 0 22px;padding-bottom:16px;border-bottom:1px solid var(--line)}
+.article h2{font-size:1.24rem;line-height:1.4;margin:36px 0 12px;padding-left:13px;border-left:4px solid var(--accent);font-weight:800}
+.article h3{font-size:1.04rem;margin:22px 0 6px;font-weight:800}
+.article p,.article li{font-size:1rem;line-height:1.95}
+.article p{margin:12px 0}
+.article ul,.article ol{padding-left:1.3em;margin:10px 0}
+.article li{margin:5px 0}
+.article strong{font-weight:800}
+.article .lead{font-size:1.06rem;line-height:1.8;color:var(--ink);background:var(--accent-soft);border:1px solid #d9e6dd;border-left:4px solid var(--accent);border-radius:14px;padding:16px 18px;margin:6px 0 24px}
+.article .cta{display:block;text-align:center;font-weight:800;text-decoration:none;background:linear-gradient(180deg,var(--accent-bright),var(--accent));color:#fff;border-radius:14px;padding:15px 18px;margin:22px 0;box-shadow:0 3px 12px rgba(46,107,62,.28)}
+.article .cta:hover{box-shadow:0 8px 20px rgba(46,107,62,.34);transform:translateY(-1px)}
+.article .cta.sub{background:#fff;color:var(--accent);border:1.5px solid var(--accent);box-shadow:none}
+.article .cta.sub:hover{background:var(--accent-soft);box-shadow:none}
+.article table.g{width:100%;border-collapse:separate;border-spacing:0;font-size:.9rem;margin:16px 0;border:1px solid var(--line);border-radius:13px;overflow:hidden}
+.article table.g th,.article table.g td{padding:10px 12px;text-align:left;border-bottom:1px solid var(--line)}
+.article table.g tbody tr:last-child td{border-bottom:none}
+.article table.g th{background:var(--accent-soft);font-size:.8rem;color:var(--accent);font-weight:700}
+.article table.g tbody tr:nth-child(even){background:#fafbfc}
+.article .note{font-size:.85rem;line-height:1.75;color:var(--muted);background:#f7f8fa;border:1px solid var(--line);border-left:3px solid var(--accent);border-radius:11px;padding:12px 15px;margin:16px 0}
+.article .note b,.article .note strong{color:var(--ink)}
+/* 編集パーツ（任意で各記事に追加可：要点・手順・目次） */
+.article .point{background:var(--ok-bg);border:1px solid #bfe3cd;border-radius:14px;padding:14px 16px;margin:18px 0}
+.article .point .pt-h{font-weight:800;color:var(--ok);font-size:.92rem;margin:0 0 4px}
+.article .steps{counter-reset:st;margin:16px 0;padding:0;list-style:none}
+.article .steps li{counter-increment:st;position:relative;padding:11px 0 11px 42px;border-bottom:1px solid var(--line);font-size:.96rem}
+.article .steps li:last-child{border-bottom:none}
+.article .steps li::before{content:counter(st);position:absolute;left:0;top:10px;width:27px;height:27px;border-radius:50%;background:linear-gradient(135deg,var(--accent-bright),var(--accent-deep));color:#fff;font-weight:800;font-size:.82rem;display:grid;place-items:center}
+.article .toc{background:#f7f8fa;border:1px solid var(--line);border-radius:14px;padding:14px 18px;margin:20px 0}
+.article .toc .toc-h{font-weight:800;font-size:.86rem;margin:0 0 6px;color:var(--ink)}
+.article .toc a{display:block;padding:5px 0;font-size:.92rem;text-decoration:none;border-bottom:1px dashed var(--line)}
+.article .toc a:last-child{border-bottom:none}
+.article .rel{margin-top:30px;background:#f7f8fa;border:1px solid var(--line);border-radius:14px;padding:15px 18px}
+.article .rel strong{display:block;margin-bottom:6px;font-size:.9rem}
+.article .rel a{display:inline-block;margin:5px 10px 5px 0;font-weight:700}
