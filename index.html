@@ -288,18 +288,19 @@ const CH = {
   gyosha:      {em:'🚚', name:'不用品回収を呼ぶ',         blurb:'運び出し不要・まとめて引取（有料）。急ぎ/運べない時。'},
 };
 
-/* 外部リンク／収益導線（アフィリエイト差し替えポイント）
-   ─ ここのURLを各ASP（A8.net・もしも 等）の広告URLに差し替えるだけで、
-     画面内の該当リンクすべてに反映されます。
-   ─ 空文字 '' のままなら、その場で「Googleで探す」検索リンクを自動生成します。 */
-const LINKS = {
-  jmty:        'https://jmty.jp/',   // ジモティー（提携リンクに差し替え可）
-  kaitori:     '',                   // 宅配/出張買取（空→検索: 宅配買取 出張買取 比較）
-  recycle_shop:'',                   // リサイクルショップ（空→検索: リサイクルショップ 買取 近く）
-  gyosha:      '',                   // 不用品回収（空→検索: 不用品回収 見積もり 比較）
+/* 各チャネルの導線。原則は「サービス内のガイドページ」に着地して完結させる
+   （Google検索に丸投げしない）。各ガイド内に詳しい選び方・注意点・将来の提携枠がある。
+   ─ ASP[k] に各ASP（A8.net・もしも 等）の広告URLを入れると、そのチャネルだけ
+     直接その広告URLへ送客（新規タブ）に切り替わる。空 '' の間はガイドページへ。 */
+const GUIDE = {
+  jmty:        'guide/jimoty-tsukaikata.html',
+  kaitori:     'guide/kaitori.html',
+  recycle_shop:'guide/kaitori.html#shop',
+  gyosha:      'guide/fuyohin-kaishu.html',
 };
-const searchUrl = q => 'https://www.google.com/search?q='+encodeURIComponent(q);
-const linkFor = (k, q) => LINKS[k] || searchUrl(q);
+const ASP = { jmty:'', kaitori:'', recycle_shop:'', gyosha:'' };
+/* チャネルの遷移先を返す。ASPがあれば外部(新規タブ)、なければ内部ガイド(同一タブ) */
+const chTarget = k => ASP[k] ? {href:ASP[k], external:true} : {href:GUIDE[k], external:false};
 
 let answers = {}, step = 0;
 function activeQs(){ return QS.filter(q=> !(q.skip && q.skip(answers))); }
@@ -410,10 +411,10 @@ function ctaFor(k){
     case 'matome':  return {label:'まとめ売り前提で計算する →', act:'calc'};
     case 'sodai':   return {label:'自治体の粗大ごみルールを見る ↓', act:'gov'};
     case 'ippan':   return {label:'自治体の分別ルールを見る ↓', act:'gov'};
-    case 'jmty':    return {label:'ジモティーを開く ↗', href:linkFor('jmty','')};
-    case 'kaitori': return {label:'宅配/出張買取を探す ↗', href:linkFor('kaitori','宅配買取 出張買取 比較')};
-    case 'recycle_shop': return {label:'近くのリサイクルショップを探す ↗', href:linkFor('recycle_shop','リサイクルショップ 買取 近く')};
-    case 'gyosha':  return {label:'不用品回収業者を探す ↗', href:linkFor('gyosha','不用品回収 見積もり 比較')};
+    case 'jmty':    return {label:'ジモティーの使い方を見る →', ch:'jmty'};
+    case 'kaitori': return {label:'買取（宅配・出張）の選び方を見る →', ch:'kaitori'};
+    case 'recycle_shop': return {label:'リサイクルショップ持込のコツを見る →', ch:'recycle_shop'};
+    case 'gyosha':  return {label:'不用品回収の選び方を見る →', ch:'gyosha'};
     default: return null;
   }
 }
@@ -423,12 +424,14 @@ function renderResult(){
   const p = r.primary, P = CH[p.k];
   const chips = activeQs().map(q=>{ const o=q.opts.find(x=>x.v===answers[q.id]); return o?`<span class="chip">${o.em} ${o.label}</span>`:''; }).join('');
   const cta = ctaFor(p.k);
-  const ctaBtn = cta ? `<div class="rec-cta"><button class="btn primary" data-cta="${cta.act||''}" ${cta.href?`data-href="${cta.href}"`:''}>${cta.label}</button></div>` : '';
+  const ct = cta && cta.ch ? chTarget(cta.ch) : null;
+  const ctaBtn = cta ? `<div class="rec-cta"><button class="btn primary" data-cta="${cta.act||''}" ${ct?`data-go="${ct.href}" data-ext="${ct.external?'1':''}"`:''}>${cta.label}</button></div>` : '';
   const whyLis = p.why.slice(0,3).map(x=>`<li>${x}</li>`).join('');
 
   const others = r.others.map(o=>{
     const C=CH[o.k], c=ctaFor(o.k);
-    const link = c ? (c.href?`<a href="${c.href}" target="_blank" rel="noopener">${c.label}</a>`:`<a href="#" data-cta="${c.act}">${c.label}</a>`) : '';
+    const ct = c && c.ch ? chTarget(c.ch) : null;
+    const link = c ? (ct ? `<a href="${ct.href}"${ct.external?' target="_blank" rel="noopener"':''}>${c.label}</a>` : `<a href="#" data-cta="${c.act}">${c.label}</a>`) : '';
     return `<div class="ro"><span class="em">${C.em}</span><div><div class="rn">${C.name}</div><div class="rd">${C.blurb}</div><div class="rk">${link}${o.why[0]?'　'+o.why[0]:''}</div></div></div>`;
   }).join('');
 
@@ -452,8 +455,8 @@ function renderResult(){
   $('wzRestart').onclick=()=>{ answers={}; step=0; renderWizard(); };
   $('wizard').querySelectorAll('[data-cta]').forEach(el=>{
     el.addEventListener('click',e=>{
-      const act=el.getAttribute('data-cta'), href=el.getAttribute('data-href');
-      if(href){ e.preventDefault(); window.open(href,'_blank','noopener'); return; }
+      const act=el.getAttribute('data-cta'), go=el.getAttribute('data-go'), ext=el.getAttribute('data-ext');
+      if(go){ e.preventDefault(); if(ext) window.open(go,'_blank','noopener'); else location.href=go; return; }
       e.preventDefault();
       if(act==='calc') gotoCalc();
       else if(act==='gov') gotoGov();
@@ -683,9 +686,16 @@ function buildPref(){
   };
   $('city').addEventListener('input', ()=>{ govMat=null; renderGov(); });
   $('govOpen').onclick=()=>{
-    const pref=$('pref').value, city=$('city').value.trim();
-    const q=`${pref}${city} 粗大ごみ 出し方 申し込み`.trim();
-    window.open('https://www.google.com/search?q='+encodeURIComponent(q),'_blank','noopener');
+    // 公式URLが分かっている自治体は公式へ直行（Google経由にしない）。不明な時のみ検索にフォールバック
+    const region=govRegion();
+    let url=null;
+    if(region){
+      if(region.kind==='city' && region.rule && region.rule.url) url=region.rule.url;
+      else if(region.kind==='ward') url='https://www.union.tokyo23-seisou.lg.jp/shiro/shori/sodaigomi.html';
+    }
+    if(!url){ const pref=$('pref').value, city=$('city').value.trim();
+      url='https://www.google.com/search?q='+encodeURIComponent(`${pref}${city} 粗大ごみ 出し方 申し込み`.trim()); }
+    window.open(url,'_blank','noopener');
   };
   // 収集日リマインドで選んだ区があれば初期表示に復元
   try{ const a=JSON.parse(localStorage.getItem('shobun-navi.area')||'null');
@@ -693,9 +703,10 @@ function buildPref(){
       if(w){ sel.value='東京都'; sel.onchange(); $('city').value=w; } } }catch(e){}
 }
 
-// 粗大ごみ時の高単価導線（出張買取・不用品回収。linkForでアフィリ差し替え可）
+// 粗大ごみ時の高単価導線（出張買取・不用品回収）。原則サービス内のガイドへ着地（ASP設定時のみ外部直送）
 function govLeadHtml(){
-  return `<div style="margin-top:10px;font-size:.82rem;background:var(--blue-bg);border:1px solid #bcd6ef;border-radius:10px;padding:9px 12px">💡 まだ使える物なら <a href="${linkFor('kaitori','出張買取 比較')}" target="_blank" rel="noopener">出張買取</a>、処分なら <a href="${linkFor('gyosha','不用品回収 見積もり 比較')}" target="_blank" rel="noopener">不用品回収の見積もり</a> も（運べない大型に便利）。</div>`;
+  const a=(ch,label)=>{ const t=chTarget(ch); return `<a href="${t.href}"${t.external?' target="_blank" rel="noopener"':''}>${label}</a>`; };
+  return `<div style="margin-top:10px;font-size:.82rem;background:var(--blue-bg);border:1px solid #bcd6ef;border-radius:10px;padding:9px 12px">💡 まだ使える物なら ${a('kaitori','出張買取')}、処分なら ${a('gyosha','不用品回収')} も（運べない大型に便利）。<span style="color:var(--muted)">選び方・注意点をガイドで確認できます。</span></div>`;
 }
 function renderSizeBtns(){
   $('govSize').innerHTML=GOV_SIZES.map(s=>`<button data-s="${s.v}" class="${govSize===s.v?'on':''}">${s.label}</button>`).join('');
